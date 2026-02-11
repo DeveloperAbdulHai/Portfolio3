@@ -1,0 +1,80 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Md Abdul Hai | Professional Portfolio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+      body {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+      }
+      .scroll-smooth {
+        scroll-behavior: smooth;
+      }
+      .glass-effect {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+      }
+      .neon-glow {
+        box-shadow: 0 0 20px rgba(0, 208, 132, 0.3);
+      }
+      .text-gradient {
+        background: linear-gradient(to right, #ffffff, #a1a1aa);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+    </style>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              background: '#050505',
+              primary: {
+                50: '#e6fff5',
+                100: '#ccffeb',
+                200: '#99ffd7',
+                300: '#66ffc3',
+                400: '#33ffaf',
+                500: '#00d084', // Matching the reference green
+                600: '#00a66a',
+                700: '#007d50',
+                800: '#005335',
+                900: '#002a1b',
+              },
+              slate: {
+                950: '#050505',
+                900: '#0a0a0a',
+                800: '#121212',
+              }
+            },
+          },
+        },
+      }
+    </script>
+  <script type="importmap">
+{
+  "imports": {
+    "framer-motion": "https://esm.sh/framer-motion@^12.34.0",
+    "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@^2.95.3",
+    "lucide-react": "https://esm.sh/lucide-react@^0.563.0",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
+    "react-router-dom": "https://esm.sh/react-router-dom@^7.13.0",
+    "react/": "https://esm.sh/react@^19.2.4/",
+    "react": "https://esm.sh/react@^19.2.4",
+    "react-hot-toast": "https://esm.sh/react-hot-toast@^2.6.0"
+  }
+}
+</script>
+</head>
+  <body class="bg-background text-slate-100 transition-colors duration-300 antialiased overflow-x-hidden">
+    <div id="root"></div>
+  </body>
+</html>

@@ -1,0 +1,5 @@
+{
+  "name": "ProPortfolio Admin-Dynamic",
+  "description": "A fully dynamic professional portfolio with a built-in admin dashboard, powered by Supabase and Framer Motion.",
+  "requestFramePermissions": []
+}
