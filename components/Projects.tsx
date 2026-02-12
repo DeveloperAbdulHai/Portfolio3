@@ -1,26 +1,34 @@
 
 import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ExternalLink, Github, ArrowUpRight, X, ChevronLeft, ChevronRight, Globe, LayoutGrid, Youtube, Maximize2, Image as ImageIcon } from 'lucide-react';
+import { ExternalLink, Github, ArrowUpRight, X, ChevronLeft, ChevronRight, Globe, LayoutGrid, Youtube, Maximize2, Image as ImageIcon, ArrowRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { Project } from '../types';
 
 interface ProjectsProps {
   projects: Project[];
+  isHomePage?: boolean;
 }
 
-const Projects: React.FC<ProjectsProps> = ({ projects }) => {
+const Projects: React.FC<ProjectsProps> = ({ projects, isHomePage = false }) => {
   const [filter, setFilter] = useState('All');
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [currentImgIndex, setCurrentImgIndex] = useState(0);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'gallery' | 'video'>('gallery');
   const carouselRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
 
   const categories = ['All', ...Array.from(new Set(projects.map(p => p.category)))];
 
   const filteredProjects = filter === 'All' 
     ? projects 
     : projects.filter(p => p.category === filter);
+
+  // Limit projects on home page to 4 rows (3 per row = 12)
+  const displayLimit = 12;
+  const displayedProjects = isHomePage ? filteredProjects.slice(0, displayLimit) : filteredProjects;
+  const hasMore = filteredProjects.length > displayLimit;
 
   const projectImages = useMemo(() => {
     if (!selectedProject) return [];
@@ -144,7 +152,7 @@ const Projects: React.FC<ProjectsProps> = ({ projects }) => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
           <AnimatePresence mode='popLayout'>
-            {filteredProjects.map((project, index) => (
+            {displayedProjects.map((project, index) => (
               <motion.div
                 key={project.id}
                 layout
@@ -183,6 +191,24 @@ const Projects: React.FC<ProjectsProps> = ({ projects }) => {
             ))}
           </AnimatePresence>
         </div>
+
+        {/* View More Button for Home Page */}
+        {isHomePage && hasMore && (
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="mt-20 flex justify-center"
+          >
+            <button 
+              onClick={() => navigate('/portfolio')}
+              className="group px-10 py-5 bg-white/5 border border-white/10 text-white rounded-xl font-black text-[11px] uppercase tracking-[0.3em] flex items-center gap-4 hover:bg-primary-500 hover:text-black hover:border-primary-500 transition-all duration-500 shadow-2xl active:scale-95"
+            >
+              View All Projects 
+              <ArrowRight size={18} className="group-hover:translate-x-2 transition-transform duration-300" />
+            </button>
+          </motion.div>
+        )}
       </div>
 
       {/* Main Project Modal */}
