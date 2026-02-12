@@ -136,7 +136,7 @@ const Hero: React.FC<HeroProps> = ({ profile, socials }) => {
                   </div>
                 </div>
                 <div className="flex flex-col items-start text-left">
-                   <span className="text-[10px] font-black uppercase tracking-[0.4em] mb-0.5">Watch Showreel</span>
+                   <span className="text-[10px] font-black uppercase tracking-[0.4em] mb-0.5">Watch Intro</span>
                    <span className="text-[9px] text-slate-500 font-bold uppercase tracking-[0.2em] group-hover:text-primary-400/70 transition-colors">Play Motion</span>
                 </div>
               </button>
@@ -186,6 +186,26 @@ const Hero: React.FC<HeroProps> = ({ profile, socials }) => {
                 loading="eager"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent opacity-60"></div>
+              
+              {/* Animated Experience Badge */}
+              <motion.div 
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1.5, duration: 0.8 }}
+                className="absolute bottom-10 left-8 right-8 z-30"
+              >
+                <motion.div 
+                  animate={{ y: [0, -10, 0] }}
+                  transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                  className="glass-effect p-6 rounded-2xl flex items-center gap-6 border border-white/10 shadow-2xl"
+                >
+                  <div className="text-4xl font-black text-primary-500 drop-shadow-[0_0_10px_rgba(0,208,132,0.4)]">5+</div>
+                  <div className="h-10 w-px bg-white/10"></div>
+                  <div className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-300 leading-relaxed">
+                    Years of Digital<br/>Experience
+                  </div>
+                </motion.div>
+              </motion.div>
             </div>
           </motion.div>
         </div>
