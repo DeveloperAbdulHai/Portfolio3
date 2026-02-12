@@ -240,6 +240,7 @@ const Projects: React.FC<ProjectsProps> = ({ projects, isHomePage = false }) => 
                 </button>
 
                 <div className="flex flex-col lg:flex-row items-stretch min-h-[600px]">
+                   {/* Left side: Media */}
                    <div className="w-full lg:w-[60%] bg-black relative group/media overflow-hidden border-r border-white/5 flex items-center justify-center min-h-[400px]">
                       {activeTab === 'video' && selectedProject.video_url ? (
                         <div className="w-full h-full aspect-video flex items-center justify-center">
@@ -266,12 +267,195 @@ const Projects: React.FC<ProjectsProps> = ({ projects, isHomePage = false }) => 
                                </div>
                              ))}
                           </div>
+
+                          {projectImages.length > 1 && (
+                            <>
+                              <button onClick={handlePrev} className="absolute left-6 top-1/2 -translate-y-1/2 p-4 bg-black/40 text-white rounded-full backdrop-blur-md opacity-0 group-hover/media:opacity-100 transition-all hover:bg-primary-500 hover:text-black z-20">
+                                <ChevronLeft size={24} />
+                              </button>
+                              <button onClick={handleNext} className="absolute right-6 top-1/2 -translate-y-1/2 p-4 bg-black/40 text-white rounded-full backdrop-blur-md opacity-0 group-hover/media:opacity-100 transition-all hover:bg-primary-500 hover:text-black z-20">
+                                <ChevronRight size={24} />
+                              </button>
+                              
+                              <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex gap-3 z-20">
+                                {projectImages.map((_, i) => (
+                                  <button key={i} onClick={() => scrollToImage(i)} className={`w-2.5 h-2.5 rounded-full transition-all ${currentImgIndex === i ? 'bg-primary-500 w-8' : 'bg-white/20'}`} />
+                                ))}
+                              </div>
+                            </>
+                          )}
                         </div>
                       )}
+
+                      {/* View Toggles & Maximize */}
+                      <div className="absolute top-10 left-10 flex gap-2 z-40">
+                        {selectedProject.video_url && (
+                          <>
+                            <button 
+                              onClick={() => setActiveTab('gallery')} 
+                              className={`p-3 rounded-xl flex items-center gap-3 text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'gallery' ? 'bg-primary-500 text-black' : 'bg-black/40 text-white hover:bg-black/60 backdrop-blur-md border border-white/5'}`}
+                            >
+                              <ImageIcon size={14} /> Gallery
+                            </button>
+                            <button 
+                              onClick={() => setActiveTab('video')} 
+                              className={`p-3 rounded-xl flex items-center gap-3 text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'video' ? 'bg-primary-500 text-black' : 'bg-black/40 text-white hover:bg-black/60 backdrop-blur-md border border-white/5'}`}
+                            >
+                              <Youtube size={14} /> Video
+                            </button>
+                          </>
+                        )}
+                      </div>
+
+                      {/* Full Screen Button (Maximize) */}
+                      {activeTab === 'gallery' && (
+                        <button 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setIsLightboxOpen(true);
+                          }}
+                          className="absolute top-10 right-10 p-4 bg-black/40 text-white rounded-full backdrop-blur-md opacity-0 group-hover/media:opacity-100 transition-all hover:bg-primary-500 hover:text-black z-40 border border-white/5 pointer-events-auto"
+                        >
+                          <Maximize2 size={18} />
+                        </button>
+                      )}
                    </div>
-                   {/* Rest of info panel omitted for brevity as it hasn't changed... */}
+
+                   {/* Right side: Info */}
+                   <div className="w-full lg:w-[40%] p-10 md:p-14 overflow-y-auto custom-scrollbar flex flex-col">
+                      <div className="flex-1">
+                        <div className="inline-block px-3 py-1 rounded-md bg-primary-500/10 border border-primary-500/20 text-primary-500 text-[10px] font-black uppercase tracking-widest mb-6">
+                           {selectedProject.category}
+                        </div>
+                        <h2 className="text-4xl font-black text-white leading-tight mb-8 tracking-tighter">
+                          {selectedProject.title}
+                        </h2>
+                        
+                        <div className="space-y-8 mb-12">
+                           <div>
+                              <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4">Overview</h4>
+                              <p className="text-slate-400 text-sm leading-relaxed font-medium">
+                                {selectedProject.description}
+                              </p>
+                           </div>
+
+                           {selectedProject.tech_stack && selectedProject.tech_stack.length > 0 && (
+                              <div>
+                                <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4">Core Stack</h4>
+                                <div className="flex flex-wrap gap-2">
+                                   {selectedProject.tech_stack.map(tech => (
+                                     <span key={tech} className="px-3 py-1.5 bg-white/5 border border-white/5 rounded-lg text-[10px] font-bold text-slate-400">
+                                       {tech}
+                                     </span>
+                                   ))}
+                                </div>
+                              </div>
+                           )}
+
+                           {/* Gallery Thumbnails */}
+                           {projectImages.length > 1 && (
+                             <div>
+                                <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4">Gallery Thumbnails</h4>
+                                <div className="grid grid-cols-4 gap-3">
+                                   {projectImages.map((img, i) => (
+                                      <button 
+                                        key={i} 
+                                        onClick={() => {
+                                          setActiveTab('gallery');
+                                          scrollToImage(i);
+                                        }}
+                                        className={`aspect-square rounded-xl overflow-hidden border-2 transition-all ${currentImgIndex === i ? 'border-primary-500' : 'border-transparent opacity-40 hover:opacity-100'}`}
+                                      >
+                                         <img src={img} className="w-full h-full object-cover" alt="thumb" />
+                                      </button>
+                                   ))}
+                                </div>
+                             </div>
+                           )}
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4 pt-10 border-t border-white/5">
+                         {selectedProject.live_url && (
+                           <a 
+                             href={selectedProject.live_url} 
+                             target="_blank" 
+                             rel="noopener noreferrer"
+                             className="flex items-center justify-center gap-3 py-5 bg-primary-500 text-black rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-xl hover:scale-[1.02] transition-transform"
+                           >
+                             Visit Live <ExternalLink size={14} />
+                           </a>
+                         )}
+                         {selectedProject.github_url && (
+                           <a 
+                             href={selectedProject.github_url} 
+                             target="_blank" 
+                             rel="noopener noreferrer"
+                             className="flex items-center justify-center gap-3 py-5 bg-white/5 border border-white/5 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-white/10 transition-all"
+                           >
+                             Source Code <Github size={14} />
+                           </a>
+                         )}
+                      </div>
+                   </div>
                 </div>
              </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Lightbox / Fullscreen Image */}
+      <AnimatePresence>
+        {isLightboxOpen && selectedProject && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[300] bg-black/98 flex flex-col items-center justify-center p-6"
+          >
+             {/* Full Screen Close Button - Increased z-index to be strictly on top */}
+             <button 
+               onClick={(e) => {
+                 e.stopPropagation();
+                 setIsLightboxOpen(false);
+               }}
+               className="absolute top-10 right-10 p-5 bg-white/5 text-white rounded-full hover:bg-primary-500 hover:text-black transition-all z-[350] border border-white/10 pointer-events-auto shadow-2xl"
+             >
+               <X size={24} />
+             </button>
+
+             <div className="relative w-full h-full flex items-center justify-center group/lightbox z-10">
+                {projectImages.length > 1 && (
+                  <>
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); handlePrev(); }}
+                      className="absolute left-10 p-6 bg-white/5 text-white rounded-full hover:bg-primary-500 hover:text-black transition-all z-[320] pointer-events-auto"
+                    >
+                      <ChevronLeft size={32} />
+                    </button>
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); handleNext(); }}
+                      className="absolute right-10 p-6 bg-white/5 text-white rounded-full hover:bg-primary-500 hover:text-black transition-all z-[320] pointer-events-auto"
+                    >
+                      <ChevronRight size={32} />
+                    </button>
+                  </>
+                )}
+
+                <motion.img 
+                  key={currentImgIndex}
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.3 }}
+                  src={projectImages[currentImgIndex]} 
+                  className="max-w-full max-h-full object-contain shadow-[0_0_100px_rgba(0,208,132,0.1)] relative z-[310]" 
+                  onClick={(e) => e.stopPropagation()}
+                />
+
+                <div className="absolute bottom-10 left-1/2 -translate-x-1/2 px-6 py-3 bg-white/5 border border-white/10 rounded-full text-[11px] font-black uppercase tracking-[0.4em] text-white backdrop-blur-md z-[320]">
+                   {currentImgIndex + 1} / {projectImages.length}
+                </div>
+             </div>
           </motion.div>
         )}
       </AnimatePresence>
