@@ -32,18 +32,27 @@ const Home: React.FC = () => {
           supabase.from('social_links').select('*'),
           supabase.from('services').select('*'),
           supabase.from('why_choose_me').select('*').order('order_index', { ascending: true }),
-          supabase.from('testimonials').select('*')
+          supabase.from('testimonials').select('*'),
+          supabase.from('project_images').select('*') // Fetch gallery images
         ]);
 
-        const [prof, sk, proj, soc, serv, why, test] = results;
+        const [prof, sk, proj, soc, serv, why, test, imgs] = results;
 
         if (prof.data) setProfile(prof.data);
         if (sk.data) setSkills(sk.data);
-        if (proj.data) setProjects(proj.data);
         if (soc.data) setSocials(soc.data);
         if (serv.data) setServices(serv.data);
         if (why.data) setWhyChooseMe(why.data);
         if (test.data) setTestimonials(test.data);
+
+        if (proj.data) {
+          const galleryImgs = imgs.data || [];
+          const projsWithGallery = proj.data.map((p: any) => ({
+            ...p,
+            gallery: galleryImgs.filter((img: any) => img.project_id === p.id)
+          }));
+          setProjects(projsWithGallery);
+        }
 
       } catch (err) {
         console.error("Critical Sync Error:", err);
@@ -57,11 +66,8 @@ const Home: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="flex flex-col items-center gap-6">
-          <div className="w-12 h-12 border-2 border-primary-500 border-t-transparent rounded-full animate-spin"></div>
-          <p className="text-slate-500 text-[10px] font-black uppercase tracking-[0.5em] animate-pulse">Synchronizing Data</p>
-        </div>
+      <div className="min-h-screen flex items-center justify-center bg-background text-primary-500">
+        <Loader2 className="animate-spin" size={40} />
       </div>
     );
   }
@@ -74,18 +80,18 @@ const Home: React.FC = () => {
       {services.length > 0 && <Services services={services} />}
       {projects.length > 0 && <Projects projects={projects} />}
       {testimonials.length > 0 && <Testimonials testimonials={testimonials} />}
-      
-      {/* 
-          Moved WhyChooseMe to appear right above the Contact section.
-          Note: Ensure you have added entries to the 'why_choose_me' table 
-          via the Admin Panel to see this content.
-      */}
       {whyChooseMe.length > 0 && <WhyChooseMe items={whyChooseMe} />}
-      
       <Contact profile={profile} />
       <Footer profile={profile} />
     </div>
   );
 };
+
+// Helper Loader for loading state
+const Loader2: React.FC<{className?: string, size?: number}> = ({className, size}) => (
+  <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+  </svg>
+);
 
 export default Home;

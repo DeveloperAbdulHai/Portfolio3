@@ -1,16 +1,19 @@
 
-import React, { useState, useEffect, createContext, useContext } from 'react';
-import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
-import Home from './pages/Home';
-import About from './pages/About';
-import ServicesPage from './pages/ServicesPage';
-import Portfolio from './pages/Portfolio';
-import Blog from './pages/Blog';
-import ContactPage from './pages/ContactPage';
-import AdminLogin from './pages/AdminLogin';
-import Dashboard from './pages/Dashboard';
+import React, { useState, useEffect, createContext, useContext, Suspense } from 'react';
+import { HashRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { supabase } from './lib/supabase';
 import { Toaster } from 'react-hot-toast';
+import { motion, AnimatePresence } from 'framer-motion';
+
+// Lazy loading pages for better performance
+const Home = React.lazy(() => import('./pages/Home'));
+const About = React.lazy(() => import('./pages/About'));
+const ServicesPage = React.lazy(() => import('./pages/ServicesPage'));
+const Portfolio = React.lazy(() => import('./pages/Portfolio'));
+const Blog = React.lazy(() => import('./pages/Blog'));
+const ContactPage = React.lazy(() => import('./pages/ContactPage'));
+const AdminLogin = React.lazy(() => import('./pages/AdminLogin'));
+const Dashboard = React.lazy(() => import('./pages/Dashboard'));
 
 interface ThemeContextType {
   isDark: boolean;
@@ -23,6 +26,41 @@ const ThemeContext = createContext<ThemeContextType>({
 });
 
 export const useTheme = () => useContext(ThemeContext);
+
+// Standard Loading Component
+const PageLoader = () => (
+  <div className="min-h-screen bg-background flex flex-col items-center justify-center">
+    <motion.div 
+      animate={{ 
+        scale: [1, 1.2, 1],
+        rotate: [0, 180, 360]
+      }}
+      transition={{ 
+        duration: 2, 
+        repeat: Infinity,
+        ease: "easeInOut" 
+      }}
+      className="w-12 h-12 border-2 border-primary-500 border-t-transparent rounded-full shadow-[0_0_20px_rgba(0,208,132,0.2)]"
+    />
+    <p className="mt-6 text-[10px] font-black uppercase tracking-[0.5em] text-slate-500 animate-pulse">Syncing Experience</p>
+  </div>
+);
+
+// Wrapper for route transitions
+const PageTransition: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const location = useLocation();
+  return (
+    <motion.div
+      key={location.pathname}
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -10 }}
+      transition={{ duration: 0.5, ease: "easeOut" }}
+    >
+      {children}
+    </motion.div>
+  );
+};
 
 const App: React.FC = () => {
   const [isDark, setIsDark] = useState(true);
@@ -59,16 +97,20 @@ const App: React.FC = () => {
   return (
     <ThemeContext.Provider value={{ isDark, toggleTheme }}>
       <HashRouter>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/services" element={<ServicesPage />} />
-          <Route path="/portfolio" element={<Portfolio />} />
-          <Route path="/blog" element={<Blog />} />
-          <Route path="/contact" element={<ContactPage />} />
-          <Route path="/admin" element={session ? <Navigate to="/dashboard" /> : <AdminLogin />} />
-          <Route path="/dashboard/*" element={session ? <Dashboard /> : <Navigate to="/admin" />} />
-        </Routes>
+        <Suspense fallback={<PageLoader />}>
+          <AnimatePresence mode="wait">
+            <Routes>
+              <Route path="/" element={<PageTransition><Home /></PageTransition>} />
+              <Route path="/about" element={<PageTransition><About /></PageTransition>} />
+              <Route path="/services" element={<PageTransition><ServicesPage /></PageTransition>} />
+              <Route path="/portfolio" element={<PageTransition><Portfolio /></PageTransition>} />
+              <Route path="/blog" element={<PageTransition><Blog /></PageTransition>} />
+              <Route path="/contact" element={<PageTransition><ContactPage /></PageTransition>} />
+              <Route path="/admin" element={session ? <Navigate to="/dashboard" /> : <PageTransition><AdminLogin /></PageTransition>} />
+              <Route path="/dashboard/*" element={session ? <PageTransition><Dashboard /></PageTransition> : <Navigate to="/admin" />} />
+            </Routes>
+          </AnimatePresence>
+        </Suspense>
       </HashRouter>
       <Toaster position="bottom-right" />
     </ThemeContext.Provider>

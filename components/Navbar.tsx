@@ -49,7 +49,7 @@ const Navbar: React.FC = () => {
             ))}
             <Link
               to="/contact"
-              className="px-6 py-2.5 bg-primary-500 text-black rounded-full text-sm font-bold shadow-[0_0_20px_rgba(0,208,132,0.4)] hover:shadow-[0_0_30px_rgba(0,208,132,0.6)] transition-all duration-300 transform hover:scale-105 active:scale-95"
+              className="px-6 py-2.5 bg-primary-500 text-black rounded-xl text-sm font-bold shadow-[0_0_20px_rgba(0,208,132,0.4)] hover:shadow-[0_0_30px_rgba(0,208,132,0.6)] transition-all duration-300 transform hover:scale-105 active:scale-95"
             >
               Hire Me
             </Link>

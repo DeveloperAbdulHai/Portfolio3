@@ -14,14 +14,24 @@ const Portfolio: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [p, pr] = await Promise.all([
+        const [p, pr, imgs] = await Promise.all([
           supabase.from('profile').select('*').maybeSingle(),
-          supabase.from('projects').select('*').order('created_at', { ascending: false })
+          supabase.from('projects').select('*').order('created_at', { ascending: false }),
+          supabase.from('project_images').select('*')
         ]);
+        
         if (p.data) setProfile(p.data);
-        if (pr.data) setProjects(pr.data);
+        
+        if (pr.data) {
+          const galleryImgs = imgs.data || [];
+          const projsWithGallery = pr.data.map((project: any) => ({
+            ...project,
+            gallery: galleryImgs.filter((img: any) => img.project_id === project.id)
+          }));
+          setProjects(projsWithGallery);
+        }
       } catch (err) {
-        console.error(err);
+        console.error("Portfolio fetch error:", err);
       } finally {
         setLoading(false);
       }

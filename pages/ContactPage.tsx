@@ -10,9 +10,14 @@ const ContactPage: React.FC = () => {
   const [profile, setProfile] = useState<Profile | null>(null);
 
   useEffect(() => {
-    supabase.from('profile').select('*').maybeSingle().then(({ data }) => {
-      if (data) setProfile(data);
-    });
+    supabase.from('profile')
+      .select('*')
+      .order('updated_at', { ascending: false })
+      .limit(1)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data) setProfile(data);
+      });
   }, []);
 
   return (
