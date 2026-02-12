@@ -4,7 +4,7 @@ import { supabase } from '../lib/supabase';
 import { useNavigate, Link } from 'react-router-dom';
 import { 
   User, Code, Briefcase, MessageSquare, LogOut, Plus, Trash2, Edit, Save, 
-  Settings, Star, LayoutGrid, CheckCircle, XCircle, X, Image as ImageIcon, Upload, Loader2, Link as LinkIcon, Share2, ExternalLink, Globe, Award, FileText, Youtube
+  Settings, Star, LayoutGrid, CheckCircle, XCircle, X, Image as ImageIcon, Upload, Loader2, Link as LinkIcon, Share2, ExternalLink, Globe, Award, FileText, Youtube, Image
 } from 'lucide-react';
 import { Project, Skill, Profile, ContactMessage, Service, Testimonial, SocialLink, WhyChooseMe } from '../types';
 import toast from 'react-hot-toast';
@@ -43,7 +43,7 @@ const Dashboard: React.FC = () => {
       const fetchMap: any = {
         profile: () => supabase.from('profile').select('*').eq('id', user.id).maybeSingle(),
         socials: () => supabase.from('social_links').select('*'),
-        skills: () => supabase.from('skills').select('*').order('percentage', { ascending: false }),
+        skills: () => supabase.from('skills').select('*').order('name', { ascending: true }),
         services: () => supabase.from('services').select('*'),
         projects: () => supabase.from('projects').select('*').order('created_at', { ascending: false }),
         testimonials: () => supabase.from('testimonials').select('*'),
@@ -52,7 +52,9 @@ const Dashboard: React.FC = () => {
       };
 
       if (fetchMap[activeTab]) {
-        const { data } = await fetchMap[activeTab]();
+        const { data, error } = await fetchMap[activeTab]();
+        if (error) throw error;
+        
         if (activeTab === 'profile') setProfile(data || { id: user.id, name: '', title: '', bio: '', avatar_url: '', resume_url: '', video_url: '', email: user.email || '', phone: '', location: '' });
         if (activeTab === 'socials') setSocials(data || []);
         if (activeTab === 'skills') setSkills(data || []);
@@ -62,9 +64,9 @@ const Dashboard: React.FC = () => {
         if (activeTab === 'messages') setMessages(data || []);
         if (activeTab === 'why') setWhyChooseMe(data || []);
       }
-    } catch (err) {
-      console.error(err);
-      toast.error("Sync failure");
+    } catch (err: any) {
+      console.error("Fetch error:", err);
+      toast.error("Sync failure: " + err.message);
     } finally {
       setLoading(false);
     }
@@ -85,6 +87,21 @@ const Dashboard: React.FC = () => {
     return publicUrl;
   };
 
+  const handleSkillIconUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    try {
+      setUploading(true);
+      if (!event.target.files?.length) return;
+      const file = event.target.files[0];
+      const publicUrl = await uploadToStorage(file, 'skills');
+      setCurrentItem({ ...currentItem, icon_url: publicUrl });
+      toast.success("Skill Icon Staged");
+    } catch (err: any) { 
+      toast.error("Upload failed: " + err.message); 
+    } finally { 
+      setUploading(false); 
+    }
+  };
+
   const handleProfileImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     try {
       setUploading(true);
@@ -99,7 +116,7 @@ const Dashboard: React.FC = () => {
         toast.success("Identity Asset Updated");
       }
     } catch (err: any) { 
-      toast.error("Upload failed"); 
+      toast.error("Upload failed: " + err.message); 
     } finally { 
       setUploading(false); 
     }
@@ -110,14 +127,22 @@ const Dashboard: React.FC = () => {
     if (!profile) return;
     setLoading(true);
     try {
-      const { error } = await supabase.from('profile').upsert({
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Authentication required");
+
+      const payload = { 
         ...profile,
-        updated_at: new Date().toISOString()
-      });
+        id: user.id 
+      };
+      
+      const { error } = await supabase.from('profile').upsert(payload);
+      
       if (error) throw error;
       toast.success("Neural Records Synchronized");
     } catch (err: any) {
-      toast.error("Update failed");
+      console.error("Profile save error:", err);
+      const msg = err.message || "Update failed";
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
@@ -251,8 +276,8 @@ const Dashboard: React.FC = () => {
                       </div>
                       <div className="space-y-3">
                         <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1 flex items-center gap-2"><Youtube size={12}/> YouTube Embed Link</label>
-                        <input className="w-full bg-slate-800/40 border border-white/5 p-5 rounded-2xl outline-none focus:ring-2 focus:ring-primary-500/50 transition-all font-bold text-white" placeholder="https://youtube.com/embed/..." value={profile.video_url || ''} onChange={e => setProfile({...profile, video_url: e.target.value})} />
-                        <p className="text-[9px] text-slate-600 font-bold ml-1">Must be an /embed/ link for the popup.</p>
+                        <input className="w-full bg-slate-800/40 border border-white/5 p-5 rounded-2xl outline-none focus:ring-2 focus:ring-primary-500/50 transition-all font-bold text-white" placeholder="https://www.youtube.com/embed/..." value={profile.video_url || ''} onChange={e => setProfile({...profile, video_url: e.target.value})} />
+                        <p className="text-[9px] text-slate-600 font-bold ml-1">Use the "Embed" URL from YouTube Share options.</p>
                       </div>
                       <div className="space-y-3">
                         <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1 flex items-center gap-2"><FileText size={12}/> CV / Resume URL</label>
@@ -268,34 +293,40 @@ const Dashboard: React.FC = () => {
                       </div>
                    </div>
                    <textarea rows={6} className="w-full bg-slate-800/40 border border-white/5 p-5 rounded-2xl outline-none resize-none focus:ring-2 focus:ring-primary-500/50 transition-all font-medium text-slate-300" placeholder="Biographical data..." value={profile.bio} onChange={e => setProfile({...profile, bio: e.target.value})} />
-                   <button type="submit" className="w-full py-6 bg-primary-500 text-black rounded-3xl font-black shadow-2xl hover:bg-primary-400 hover:-translate-y-1 transition-all uppercase tracking-[0.3em] text-[11px]">Deploy Global Updates</button>
+                   <button type="submit" disabled={loading} className="w-full py-6 bg-primary-500 text-black rounded-3xl font-black shadow-2xl hover:bg-primary-400 hover:-translate-y-1 transition-all uppercase tracking-[0.3em] text-[11px] disabled:opacity-50">
+                     {loading ? 'Synchronizing...' : 'Deploy Global Updates'}
+                   </button>
                 </div>
               </form>
             )}
 
-            {/* List Views for other tabs... */}
-            {activeTab === 'why' && (
-              <div className="grid grid-cols-1 gap-6">
-                {whyChooseMe.map(item => (
-                  <div key={item.id} className="bg-slate-900 p-8 rounded-[32px] border border-white/5 flex justify-between items-center group hover:border-primary-500/20 transition-all duration-300 shadow-xl">
-                    <div className="flex items-center gap-8">
-                      <div className="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center text-primary-500 group-hover:bg-primary-500 group-hover:text-black transition-all duration-500">
-                         <Award size={24} />
+            {activeTab === 'skills' && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {skills.map(skill => (
+                  <div key={skill.id} className="bg-slate-900 p-8 rounded-[32px] border border-white/5 flex justify-between items-center group hover:border-primary-500/20 transition-all duration-300 shadow-xl">
+                    <div className="flex items-center gap-6">
+                      <div className="w-14 h-14 bg-white/5 rounded-2xl flex items-center justify-center text-primary-500 group-hover:bg-primary-500 group-hover:text-black transition-all overflow-hidden">
+                         {skill.icon_url ? (
+                           <img src={skill.icon_url} alt={skill.name} className="w-8 h-8 object-contain" />
+                         ) : (
+                           <Code size={22} />
+                         )}
                       </div>
                       <div>
-                        <h4 className="font-black text-white text-lg tracking-tight mb-1">{item.title}</h4>
-                        <p className="text-slate-500 text-sm max-w-md line-clamp-2">{item.description}</p>
+                        <h4 className="font-black text-white text-lg tracking-tight mb-0.5">{skill.name}</h4>
+                        <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest">{skill.category}</p>
                       </div>
                     </div>
                     <div className="flex gap-2">
-                      <button onClick={() => { setCurrentItem(item); setIsEditing(true); setIsModalOpen(true); }} className="p-4 text-slate-500 hover:text-primary-500 transition-colors bg-white/5 rounded-2xl"><Edit size={20}/></button>
-                      <button onClick={() => deleteItem('why_choose_me', item.id)} className="p-4 text-red-500/50 hover:text-red-500 transition-colors bg-red-500/5 rounded-2xl"><Trash2 size={20}/></button>
+                      <button onClick={() => { setCurrentItem(skill); setIsEditing(true); setIsModalOpen(true); }} className="p-4 text-slate-500 hover:text-primary-500 transition-colors bg-white/5 rounded-2xl"><Edit size={20}/></button>
+                      <button onClick={() => deleteItem('skills', skill.id)} className="p-4 text-red-500/50 hover:text-red-500 transition-colors bg-red-500/5 rounded-2xl"><Trash2 size={20}/></button>
                     </div>
                   </div>
                 ))}
               </div>
             )}
-            
+
+            {/* Other tabs follow the same list pattern... */}
             {activeTab === 'socials' && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {socials.map(s => (
@@ -327,21 +358,43 @@ const Dashboard: React.FC = () => {
                <button onClick={() => setIsModalOpen(false)} className="p-3 hover:bg-white/10 rounded-full transition-colors text-slate-500"><X size={24}/></button>
              </div>
              <form onSubmit={handleSubmitItem} className="space-y-6">
+                {activeTab === 'skills' && (
+                   <div className="space-y-5">
+                    <input required className="w-full bg-slate-800 p-5 rounded-2xl outline-none border border-white/5 focus:ring-2 focus:ring-primary-500 font-bold" placeholder="Skill Name (e.g. React)" value={currentItem.name || ''} onChange={e => setCurrentItem({...currentItem, name: e.target.value})} />
+                    <input required className="w-full bg-slate-800 p-5 rounded-2xl outline-none border border-white/5 focus:ring-2 focus:ring-primary-500 font-bold" placeholder="Category (e.g. Frontend)" value={currentItem.category || ''} onChange={e => setCurrentItem({...currentItem, category: e.target.value})} />
+                    
+                    <div className="flex flex-col gap-4">
+                      <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Icon Source</label>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-3">
+                          <input className="w-full bg-slate-800 p-5 rounded-2xl outline-none border border-white/5 focus:ring-2 focus:ring-primary-500 font-bold" placeholder="Lucide Name" value={currentItem.icon || ''} onChange={e => setCurrentItem({...currentItem, icon: e.target.value})} />
+                        </div>
+                        <div className="relative group flex items-center justify-center bg-slate-800/50 border border-white/5 rounded-2xl p-4 overflow-hidden min-h-[64px]">
+                          {uploading ? (
+                            <Loader2 className="animate-spin text-primary-500" size={20} />
+                          ) : currentItem.icon_url ? (
+                            <img src={currentItem.icon_url} className="w-8 h-8 object-contain" alt="Staged" />
+                          ) : (
+                            <ImageIcon className="text-slate-600" size={24} />
+                          )}
+                          <label className="absolute inset-0 bg-primary-500/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer">
+                             <Upload size={16} className="text-primary-500" />
+                             <input type="file" className="hidden" accept="image/*" onChange={handleSkillIconUpload} disabled={uploading} />
+                          </label>
+                        </div>
+                      </div>
+                      {currentItem.icon_url && (
+                        <button type="button" onClick={() => setCurrentItem({...currentItem, icon_url: null})} className="text-[9px] font-black text-red-500 uppercase tracking-widest self-end">Clear Uploaded Icon</button>
+                      )}
+                    </div>
+                  </div>
+                )}
+                {/* Other forms follow similar logic... */}
                 {activeTab === 'socials' && (
                   <div className="space-y-5">
                     <input required className="w-full bg-slate-800 p-5 rounded-2xl outline-none border border-white/5 focus:ring-2 focus:ring-primary-500 font-bold" placeholder="Platform (e.g. GitHub)" value={currentItem.platform || ''} onChange={e => setCurrentItem({...currentItem, platform: e.target.value})} />
                     <input required className="w-full bg-slate-800 p-5 rounded-2xl outline-none border border-white/5 focus:ring-2 focus:ring-primary-500 font-bold" placeholder="URL" value={currentItem.url || ''} onChange={e => setCurrentItem({...currentItem, url: e.target.value})} />
                     <input className="w-full bg-slate-800 p-5 rounded-2xl outline-none border border-white/5 focus:ring-2 focus:ring-primary-500 font-bold" placeholder="Lucide Icon Name" value={currentItem.icon || ''} onChange={e => setCurrentItem({...currentItem, icon: e.target.value})} />
-                  </div>
-                )}
-                {activeTab === 'why' && (
-                  <div className="space-y-5">
-                    <input required className="w-full bg-slate-800 p-5 rounded-2xl outline-none border border-white/5 focus:ring-2 focus:ring-primary-500 font-bold text-white" placeholder="Core Value Title" value={currentItem.title || ''} onChange={e => setCurrentItem({...currentItem, title: e.target.value})} />
-                    <textarea required className="w-full bg-slate-800 p-5 rounded-2xl outline-none border border-white/5 focus:ring-2 focus:ring-primary-500 font-medium text-slate-300 resize-none" rows={4} placeholder="Detailed justification..." value={currentItem.description || ''} onChange={e => setCurrentItem({...currentItem, description: e.target.value})} />
-                    <div className="flex gap-4">
-                       <input className="flex-1 bg-slate-800 p-5 rounded-2xl outline-none border border-white/5 focus:ring-2 focus:ring-primary-500 font-bold text-white" placeholder="Lucide Icon" value={currentItem.icon || ''} onChange={e => setCurrentItem({...currentItem, icon: e.target.value})} />
-                       <input type="number" className="w-24 bg-slate-800 p-5 rounded-2xl outline-none border border-white/5 focus:ring-2 focus:ring-primary-500 font-bold text-white" placeholder="Seq" value={currentItem.order_index || 0} onChange={e => setCurrentItem({...currentItem, order_index: parseInt(e.target.value)})} />
-                    </div>
                   </div>
                 )}
                 <button type="submit" className="w-full py-6 bg-primary-500 text-black font-black rounded-3xl hover:bg-primary-400 transition-all uppercase tracking-[0.3em] text-[11px] shadow-2xl">

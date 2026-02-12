@@ -17,6 +17,8 @@ export interface Skill {
   name: string;
   percentage: number;
   category: string;
+  icon?: string;
+  icon_url?: string;
 }
 
 export interface Project {
