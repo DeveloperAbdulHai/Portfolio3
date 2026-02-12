@@ -1,6 +1,5 @@
-
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -9,22 +8,13 @@
     <style>
       body {
         font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-      }
-      .scroll-smooth {
-        scroll-behavior: smooth;
+        background-color: #050505;
+        color: #f8fafc;
       }
       .glass-effect {
         background: rgba(255, 255, 255, 0.03);
         backdrop-filter: blur(10px);
         border: 1px solid rgba(255, 255, 255, 0.05);
-      }
-      .neon-glow {
-        box-shadow: 0 0 20px rgba(0, 208, 132, 0.3);
-      }
-      .text-gradient {
-        background: linear-gradient(to right, #ffffff, #a1a1aa);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
       }
       /* Custom scrollbar */
       ::-webkit-scrollbar {
@@ -54,7 +44,7 @@
                 200: '#99ffd7',
                 300: '#66ffc3',
                 400: '#33ffaf',
-                500: '#00d084', // Matching the reference green
+                500: '#00d084',
                 600: '#00a66a',
                 700: '#007d50',
                 800: '#005335',
@@ -65,9 +55,6 @@
                 900: '#0a0a0a',
                 800: '#121212',
               }
-            },
-            fontFamily: {
-              sans: ['Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif'],
             }
           },
         },
@@ -76,22 +63,23 @@
   <script type="importmap">
 {
   "imports": {
-    "framer-motion": "https://esm.sh/framer-motion@^12.34.0",
-    "react/": "https://esm.sh/react@^19.2.4/",
     "react": "https://esm.sh/react@^19.2.4",
-    "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^5.1.4",
     "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
-    "vite": "https://esm.sh/vite@^7.3.1",
+    "react/": "https://esm.sh/react@^19.2.4/",
     "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@^2.95.3",
     "react-router-dom": "https://esm.sh/react-router-dom@^7.13.0",
+    "react-hot-toast": "https://esm.sh/react-hot-toast@^2.6.0",
+    "framer-motion": "https://esm.sh/framer-motion@^12.34.0",
     "lucide-react": "https://esm.sh/lucide-react@^0.563.0",
-    "react-hot-toast": "https://esm.sh/react-hot-toast@^2.6.0"
+    "vite": "https://esm.sh/vite@^7.3.1",
+    "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^5.1.4"
   }
 }
 </script>
 </head>
-  <body class="bg-background text-slate-100 antialiased overflow-x-hidden">
+  <body class="bg-background antialiased overflow-x-hidden">
     <div id="root"></div>
+    <!-- Vite entry point -->
     <script type="module" src="/index.tsx"></script>
   </body>
 </html>
