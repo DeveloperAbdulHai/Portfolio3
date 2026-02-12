@@ -4,6 +4,8 @@ import { HashRouter, Routes, Route, Navigate, useLocation } from 'react-router-d
 import { supabase } from './lib/supabase';
 import { Toaster } from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
+import BackgroundLights from './components/BackgroundLights';
+import CustomCursor from './components/CustomCursor';
 
 // Lazy loading pages for better performance
 const Home = React.lazy(() => import('./pages/Home'));
@@ -56,6 +58,7 @@ const PageTransition: React.FC<{ children: React.ReactNode }> = ({ children }) =
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -10 }}
       transition={{ duration: 0.5, ease: "easeOut" }}
+      className="relative z-10"
     >
       {children}
     </motion.div>
@@ -97,6 +100,8 @@ const App: React.FC = () => {
   return (
     <ThemeContext.Provider value={{ isDark, toggleTheme }}>
       <HashRouter>
+        <CustomCursor />
+        <BackgroundLights />
         <Suspense fallback={<PageLoader />}>
           <AnimatePresence mode="wait">
             <Routes>

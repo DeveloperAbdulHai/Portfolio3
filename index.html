@@ -11,6 +11,7 @@
         background-color: #050505;
         color: #f8fafc;
         margin: 0;
+        cursor: none; /* Hide default cursor */
       }
       #root {
         min-height: 100vh;
@@ -33,6 +34,11 @@
       }
       ::-webkit-scrollbar-thumb:hover {
         background: #00d084;
+      }
+      
+      /* Ensure clickable elements also hide cursor */
+      a, button, input, textarea, [role="button"] {
+        cursor: none !important;
       }
     </style>
     <script>

@@ -31,6 +31,21 @@ const Hero: React.FC<HeroProps> = ({ profile, socials }) => {
     }
   };
 
+  // Helper to convert standard video URLs to embed URLs
+  const getEmbedUrl = (url: string) => {
+    if (!url) return '';
+    
+    // YouTube
+    const ytMatch = url.match(/(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&?/\s]+)/);
+    if (ytMatch) return `https://www.youtube.com/embed/${ytMatch[1]}?autoplay=1`;
+    
+    // Vimeo
+    const vimeoMatch = url.match(/(?:https?:\/\/)?(?:www\.)?(?:vimeo\.com\/|player\.vimeo\.com\/video\/)(\d+)/);
+    if (vimeoMatch) return `https://player.vimeo.com/video/${vimeoMatch[1]}?autoplay=1`;
+    
+    return url;
+  };
+
   const nameParts = displayName.split(' ');
   const lastName = nameParts.pop();
   const firstName = nameParts.join(' ');
@@ -57,13 +72,11 @@ const Hero: React.FC<HeroProps> = ({ profile, socials }) => {
 
   return (
     <section className="relative min-h-screen flex items-center pt-20 overflow-hidden bg-background">
-      {/* Background Ambience */}
-      <div className="absolute top-[-10%] right-[-5%] w-[600px] h-[600px] bg-primary-500/10 blur-[140px] rounded-full animate-pulse"></div>
+      <div className="absolute top-[-20%] right-[-10%] w-[800px] h-[800px] bg-primary-500/10 blur-[160px] rounded-full animate-pulse"></div>
+      <div className="absolute top-[20%] right-[-5%] w-[400px] h-[400px] bg-blue-500/5 blur-[120px] rounded-full"></div>
       <div className="absolute bottom-[10%] left-[-5%] w-[400px] h-[400px] bg-primary-500/5 blur-[100px] rounded-full"></div>
 
       <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 w-full grid grid-cols-1 lg:grid-cols-12 gap-16 items-center relative z-10">
-        
-        {/* Left Content */}
         <motion.div 
           className="lg:col-span-7 space-y-10"
           variants={containerVariants}
@@ -151,7 +164,6 @@ const Hero: React.FC<HeroProps> = ({ profile, socials }) => {
           </motion.div>
         </motion.div>
 
-        {/* Right Visual Section */}
         <div className="lg:col-span-5 relative hidden lg:block">
           <motion.div
             initial={{ opacity: 0, scale: 0.9, rotate: 2 }}
@@ -168,32 +180,7 @@ const Hero: React.FC<HeroProps> = ({ profile, socials }) => {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent opacity-60"></div>
             </div>
-
-            {/* Floating Info Cards */}
-            <motion.div 
-              initial={{ x: 20, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              transition={{ delay: 1.2, duration: 0.8 }}
-              className="absolute -right-8 top-1/4 p-6 bg-slate-800/80 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl animate-[bounce_5s_infinite]"
-            >
-              <div className="text-primary-500 font-black text-2xl mb-1">05+</div>
-              <div className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Years Exp.</div>
-            </motion.div>
-
-            <motion.div 
-              initial={{ x: -20, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              transition={{ delay: 1.4, duration: 0.8 }}
-              className="absolute -left-8 bottom-1/4 p-6 bg-slate-800/80 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl animate-[pulse_6s_infinite]"
-            >
-              <div className="text-white font-black text-2xl mb-1">100%</div>
-              <div className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Satisfaction</div>
-            </motion.div>
           </motion.div>
-
-          <div className="absolute -z-10 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[25rem] font-black text-white/5 select-none pointer-events-none uppercase italic">
-            {displayName.charAt(0)}
-          </div>
         </div>
       </div>
 
@@ -219,7 +206,7 @@ const Hero: React.FC<HeroProps> = ({ profile, socials }) => {
               className="w-full max-w-5xl aspect-video rounded-3xl overflow-hidden border border-white/10 shadow-3xl bg-black"
             >
               <iframe 
-                src={profile.video_url} 
+                src={getEmbedUrl(profile.video_url)} 
                 className="w-full h-full"
                 title="Portfolio Showreel"
                 frameBorder="0"
