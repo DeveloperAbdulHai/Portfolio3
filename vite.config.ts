@@ -7,15 +7,7 @@ export default defineConfig({
     outDir: 'dist',
     target: 'esnext',
     sourcemap: false,
-    minify: 'esbuild',
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom', 'react-router-dom', 'framer-motion'],
-          ui: ['lucide-react']
-        }
-      }
-    }
+    minify: 'esbuild'
   },
   server: {
     port: 3000,
