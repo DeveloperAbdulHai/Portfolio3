@@ -99,3 +99,14 @@ export interface SocialLink {
   url: string;
   icon: string;
 }
+
+// Added BlogPost interface to fix the module import error in Dashboard.tsx
+export interface BlogPost {
+  id: string;
+  title: string;
+  content: string;
+  image_url: string;
+  category: string;
+  read_time: string;
+  created_at: string;
+}

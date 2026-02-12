@@ -3,38 +3,51 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { useNavigate, Link } from 'react-router-dom';
 import { 
-  User, Code, Briefcase, MessageSquare, LogOut, Plus, Trash2, Edit, Save, 
-  Settings, Star, LayoutGrid, CheckCircle, XCircle, X, Image as ImageIcon, Upload, Loader2, Link as LinkIcon, Share2, ExternalLink, Globe, Award, FileText, Youtube, Tag, Video, History, GraduationCap, Building2, Mail, Terminal, Layers, Cpu, Eye, EyeOff, Phone, MapPin
+  User, Briefcase, MessageSquare, LogOut, Plus, Trash2, Edit, X, Upload, Loader2, Share2, Award, FileText, Globe, History, Layers, Cpu, Star, AlertCircle, ExternalLink, Calendar, MapPin, Video, Image as ImageIcon, Tag
 } from 'lucide-react';
-import { Project, Skill, Profile, ContactMessage, Service, Testimonial, SocialLink, WhyChooseMe, ProjectCategory, ProjectImage, TimelineEntry } from '../types';
+import { Project, Skill, Profile, ContactMessage, Service, Testimonial, SocialLink, WhyChooseMe, TimelineEntry, BlogPost, ProjectCategory } from '../types';
 import toast from 'react-hot-toast';
 
 const Dashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState('profile');
   const [loading, setLoading] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [tableMissing, setTableMissing] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [uploading, setUploading] = useState(false);
   const navigate = useNavigate();
   
   const [profile, setProfile] = useState<Profile | null>(null);
   const [skills, setSkills] = useState<Skill[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
-  const [projectCategories, setProjectCategories] = useState<ProjectCategory[]>([]);
+  const [categories, setCategories] = useState<ProjectCategory[]>([]);
+  const [blogs, setBlogs] = useState<BlogPost[]>([]);
   const [services, setServices] = useState<Service[]>([]);
   const [whyChooseMe, setWhyChooseMe] = useState<WhyChooseMe[]>([]);
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [messages, setMessages] = useState<ContactMessage[]>([]);
   const [socials, setSocials] = useState<SocialLink[]>([]);
   const [timeline, setTimeline] = useState<TimelineEntry[]>([]);
+  
   const [currentItem, setCurrentItem] = useState<any>({});
+  const [galleryImages, setGalleryImages] = useState<string[]>([]);
 
   useEffect(() => {
     fetchData();
+    if (activeTab === 'projects' || activeTab === 'categories') {
+       fetchCategories();
+    }
   }, [activeTab]);
+
+  const fetchCategories = async () => {
+    const { data } = await supabase.from('project_categories').select('*').order('name');
+    if (data) setCategories(data);
+  };
 
   const fetchData = async () => {
     setLoading(true);
+    setTableMissing(false);
     try {
       const { data: { user }, error: userError } = await supabase.auth.getUser();
       if (userError || !user) {
@@ -43,12 +56,13 @@ const Dashboard: React.FC = () => {
       }
 
       const fetchMap: any = {
-        profile: () => supabase.from('profile').select('*').eq('id', user.id).maybeSingle(),
+        profile: () => supabase.from('profile').select('*').order('updated_at', { ascending: false }).limit(1).maybeSingle(),
         socials: () => supabase.from('social_links').select('*'),
         skills: () => supabase.from('skills').select('*').order('name', { ascending: true }),
         services: () => supabase.from('services').select('*').order('title', { ascending: true }),
-        projects: () => supabase.from('projects').select('*').order('created_at', { ascending: false }),
+        projects: () => supabase.from('projects').select('*, gallery:project_images(*)').order('created_at', { ascending: false }),
         categories: () => supabase.from('project_categories').select('*').order('name', { ascending: true }),
+        blogs: () => supabase.from('blogs').select('*').order('created_at', { ascending: false }),
         testimonials: () => supabase.from('testimonials').select('*'),
         messages: () => supabase.from('contact_messages').select('*').order('created_at', { ascending: false }),
         why: () => supabase.from('why_choose_me').select('*').order('order_index', { ascending: true }),
@@ -57,91 +71,77 @@ const Dashboard: React.FC = () => {
 
       if (fetchMap[activeTab]) {
         const { data, error } = await fetchMap[activeTab]();
-        if (error && error.code !== 'PGRST116') throw error;
-        
-        if (activeTab === 'profile') {
-          setProfile(data || { 
-            id: user.id, 
-            name: '', 
-            title: '', 
-            bio: '', 
-            about_headline: '', 
-            avatar_url: '', 
-            about_image_url: '', 
-            resume_url: '', 
-            video_url: '', 
-            email: user.email || '', 
-            phone: '', 
-            location: '' 
-          });
+        if (error) {
+          if (error.code === '42P01') setTableMissing(true);
+          else throw error;
         }
+        if (activeTab === 'profile') setProfile(data || {} as Profile);
         if (activeTab === 'socials') setSocials(data || []);
         if (activeTab === 'skills') setSkills(data || []);
         if (activeTab === 'services') setServices(data || []);
         if (activeTab === 'timeline') setTimeline(data || []);
-        if (activeTab === 'projects') {
-          const projs = data || [];
-          const { data: galleryData } = await supabase.from('project_images').select('*');
-          const projectsWithGallery = projs.map((p: any) => ({
-            ...p,
-            gallery: galleryData?.filter((g: any) => g.project_id === p.id) || []
-          }));
-          setProjects(projectsWithGallery);
-          const { data: cats } = await supabase.from('project_categories').select('*');
-          setProjectCategories(cats || []);
-        }
-        if (activeTab === 'categories') setProjectCategories(data || []);
+        if (activeTab === 'blogs') setBlogs(data || []);
+        if (activeTab === 'projects') setProjects(data || []);
+        if (activeTab === 'categories') setCategories(data || []);
         if (activeTab === 'testimonials') setTestimonials(data || []);
         if (activeTab === 'messages') setMessages(data || []);
         if (activeTab === 'why') setWhyChooseMe(data || []);
       }
     } catch (err: any) {
-      console.error("Dashboard Fetch Error:", err);
+      toast.error(err.message || "Fetch failed");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    navigate('/');
-  };
-
-  const uploadToStorage = async (file: File, folder: string, bucket: string = 'Portfolio') => {
-    const fileExt = file.name.split('.').pop();
-    const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
-    const filePath = `${folder}/${fileName}`;
-    const { error: uploadError } = await supabase.storage.from(bucket).upload(filePath, file);
-    if (uploadError) throw uploadError;
-    const { data: { publicUrl } } = supabase.storage.from(bucket).getPublicUrl(filePath);
-    return publicUrl;
-  };
-
-  const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const deleteItem = async (table: string, id: string) => {
+    if (!window.confirm("Are you sure you want to delete this record? This action cannot be undone.")) return;
+    
+    setIsProcessing(true);
     try {
-      setUploading(true);
-      if (!event.target.files?.length || !profile) return;
-      const file = event.target.files[0];
-      const publicUrl = await uploadToStorage(file, 'avatars', 'Portfolio');
-      setProfile({ ...profile, avatar_url: publicUrl });
-      toast.success("Avatar uploaded! Remember to save changes.");
+      const { error } = await supabase.from(table).delete().eq('id', id);
+      if (error) throw error;
+      
+      toast.success("Record deleted successfully");
+      fetchData();
+      if (table === 'project_categories') fetchCategories();
     } catch (err: any) {
-      toast.error("Avatar upload failed: " + err.message);
+      toast.error(`Delete failed: ${err.message}`);
     } finally {
-      setUploading(false);
+      setIsProcessing(false);
     }
   };
 
-  const handleAboutPortraitUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>, field: string, isProfile: boolean = false, isGallery: boolean = false) => {
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
+
+    setUploading(true);
     try {
-      setUploading(true);
-      if (!event.target.files?.length || !profile) return;
-      const file = event.target.files[0];
-      const publicUrl = await uploadToStorage(file, 'about', 'Portfolio');
-      setProfile({ ...profile, about_image_url: publicUrl });
-      toast.success("About portrait uploaded! Remember to save changes.");
-    } catch (err: any) {
-      toast.error("Upload failed: " + err.message);
+      const uploadedUrls: string[] = [];
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
+        const filePath = `uploads/${fileName}`;
+
+        const { error: uploadError } = await supabase.storage.from('Portfolio').upload(filePath, file);
+        if (uploadError) throw uploadError;
+
+        const { data } = supabase.storage.from('Portfolio').getPublicUrl(filePath);
+        uploadedUrls.push(data.publicUrl);
+      }
+
+      if (isProfile && profile) {
+        setProfile({ ...profile, [field]: uploadedUrls[0] });
+      } else if (isGallery) {
+        setGalleryImages([...galleryImages, ...uploadedUrls]);
+      } else {
+        setCurrentItem({ ...currentItem, [field]: uploadedUrls[0] });
+      }
+      toast.success("Upload successful");
+    } catch (error: any) {
+      toast.error(`Upload error: ${error.message}`);
     } finally {
       setUploading(false);
     }
@@ -149,85 +149,188 @@ const Dashboard: React.FC = () => {
 
   const handleSubmitItem = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
+    setIsProcessing(true);
     try {
       const tableMap: any = { 
-        skills: 'skills', projects: 'projects', categories: 'project_categories',
+        skills: 'skills', projects: 'projects', blogs: 'blogs',
         services: 'services', testimonials: 'testimonials', socials: 'social_links', 
-        why: 'why_choose_me', timeline: 'timeline'
+        why: 'why_choose_me', timeline: 'timeline', categories: 'project_categories'
       };
       
       const payload = { ...currentItem };
-      const { gallery, id, ...savePayload } = payload;
+      const { id, created_at, gallery, ...savePayload } = payload;
       
-      let result;
+      if (activeTab === 'projects' && typeof savePayload.tech_stack === 'string') {
+        savePayload.tech_stack = (savePayload.tech_stack as string).split(',').map(s => s.trim()).filter(Boolean);
+      }
+
       if (isEditing) {
-        result = await supabase.from(tableMap[activeTab]).update(savePayload).eq('id', id).select().single();
+        await supabase.from(tableMap[activeTab]).update(savePayload).eq('id', id);
       } else {
-        result = await supabase.from(tableMap[activeTab]).insert([savePayload]).select().single();
+        const { data, error } = await supabase.from(tableMap[activeTab]).insert([savePayload]).select().single();
+        if (error) throw error;
+        
+        if (activeTab === 'projects' && savePayload.gallery_type === 'image' && galleryImages.length > 0) {
+          const galleryPayload = galleryImages.map(url => ({ project_id: data.id, image_url: url }));
+          await supabase.from('project_images').insert(galleryPayload);
+        }
       }
       
-      if (result.error) throw result.error;
-
-      toast.success("Database Updated");
+      toast.success("Sync successful");
       setIsModalOpen(false);
+      setGalleryImages([]);
       fetchData();
+      if (activeTab === 'categories') fetchCategories();
     } catch (err: any) { 
-      toast.error(err.message || "Operation failed."); 
+      toast.error(err.message); 
     } finally {
-      setLoading(false);
+      setIsProcessing(false);
     }
   };
 
-  const saveProfileChanges = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!profile) return;
-    setLoading(true);
-    try {
-      const { error } = await supabase.from('profile').upsert(profile);
-      if (error) throw error;
-      toast.success("Identity Updated");
-    } catch (err: any) {
-      toast.error("Update failed: " + err.message);
-    } finally {
-      setLoading(false);
-    }
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    navigate('/admin');
+    toast.success("Logged out");
   };
 
-  const deleteItem = async (table: string, id: string) => {
-    if (!window.confirm("Permanent deletion cannot be undone. Proceed?")) return;
-    const { error } = await supabase.from(table).delete().eq('id', id);
-    if (!error) { 
-      toast.success("Record Purged"); 
-      fetchData(); 
+  const openModal = (item: any = {}) => {
+    setCurrentItem(item);
+    setIsEditing(!!item.id);
+    if (activeTab === 'projects' && item.gallery) {
+      setGalleryImages(item.gallery.map((g: any) => g.image_url));
     } else {
-      toast.error("Deletion failed: " + error.message);
+      setGalleryImages([]);
     }
+    setIsModalOpen(true);
   };
 
-  const renderEmptyState = (label: string) => (
-    <div className="flex flex-col items-center justify-center py-40 space-y-4 opacity-30">
-       <Layers size={64} className="text-slate-500 mb-2" />
-       <p className="text-[10px] font-black uppercase tracking-[0.5em] text-slate-500">{label} is currently empty</p>
-    </div>
-  );
+  const renderContent = () => {
+    if (loading && !uploading && !isModalOpen) return <div className="flex justify-center py-40"><Loader2 className="animate-spin text-primary-500" size={64} /></div>;
+    
+    if (tableMissing) return (
+      <div className="max-w-2xl mx-auto bg-slate-900 border border-red-500/20 p-12 rounded-[40px] text-center mt-20">
+         <AlertCircle size={64} className="text-red-500 mx-auto mb-6 opacity-50" />
+         <h3 className="text-2xl font-bold mb-4 text-white">Database Link Broken</h3>
+         <button onClick={fetchData} className="px-8 py-4 bg-white/5 border border-white/10 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-white/10 transition-all text-white">Retry Connection</button>
+      </div>
+    );
+
+    switch(activeTab) {
+      case 'profile':
+        return profile && (
+          <form onSubmit={(e) => { e.preventDefault(); supabase.from('profile').upsert(profile).then(() => toast.success("Profile Updated")); }} className="bg-[#0a0a0a] p-12 rounded-[40px] border border-white/5 space-y-12 shadow-2xl">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-10">
+              <div className="space-y-6">
+                <div>
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 block mb-3">Full Name</label>
+                  <input className="w-full bg-[#111] p-5 rounded-xl border-none text-white focus:ring-1 focus:ring-primary-500/50 outline-none" value={profile.name || ''} onChange={e => setProfile({...profile, name: e.target.value})} />
+                </div>
+                <div>
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 block mb-3">Professional Title</label>
+                  <input className="w-full bg-[#111] p-5 rounded-xl border-none text-white focus:ring-1 focus:ring-primary-500/50 outline-none" value={profile.title || ''} onChange={e => setProfile({...profile, title: e.target.value})} />
+                </div>
+                <div>
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 block mb-3">Location</label>
+                  <input className="w-full bg-[#111] p-5 rounded-xl border-none text-white focus:ring-1 focus:ring-primary-500/50 outline-none" value={profile.location || ''} onChange={e => setProfile({...profile, location: e.target.value})} />
+                </div>
+              </div>
+              <div className="space-y-6">
+                <div>
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 block mb-3">Avatar Image</label>
+                  <label className="w-full cursor-pointer bg-[#111] hover:bg-primary-500/10 border border-white/5 group text-slate-400 p-5 rounded-xl transition-all flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      {uploading ? <Loader2 size={18} className="animate-spin text-primary-500" /> : <Upload size={18} />}
+                      <span className="text-xs font-bold uppercase tracking-widest">{profile.avatar_url ? 'Update Photo' : 'Choose Photo'}</span>
+                    </div>
+                    {profile.avatar_url && <div className="w-10 h-10 rounded-lg overflow-hidden border border-white/10"><img src={profile.avatar_url} className="w-full h-full object-cover" /></div>}
+                    <input type="file" className="hidden" accept="image/*" onChange={(e) => handleFileUpload(e, 'avatar_url', true)} />
+                  </label>
+                </div>
+                <div>
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 block mb-3">Resume Link</label>
+                  <input className="w-full bg-[#111] p-5 rounded-xl border-none text-white focus:ring-1 focus:ring-primary-500/50 outline-none" value={profile.resume_url || ''} onChange={e => setProfile({...profile, resume_url: e.target.value})} />
+                </div>
+                <div>
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 block mb-3">About Page Image</label>
+                  <label className="w-full cursor-pointer bg-[#111] hover:bg-primary-500/10 border border-white/5 group text-slate-400 p-5 rounded-xl transition-all flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      {uploading ? <Loader2 size={18} className="animate-spin text-primary-500" /> : <Upload size={18} />}
+                      <span className="text-xs font-bold uppercase tracking-widest">{profile.about_image_url ? 'Update Image' : 'Choose Image'}</span>
+                    </div>
+                    {profile.about_image_url && <div className="w-10 h-10 rounded-lg overflow-hidden border border-white/10"><img src={profile.about_image_url} className="w-full h-full object-cover" /></div>}
+                    <input type="file" className="hidden" accept="image/*" onChange={(e) => handleFileUpload(e, 'about_image_url', true)} />
+                  </label>
+                </div>
+              </div>
+            </div>
+            <textarea className="w-full bg-[#111] p-6 rounded-2xl border-none text-white h-48 focus:ring-1 focus:ring-primary-500/50 outline-none resize-none" value={profile.bio || ''} onChange={e => setProfile({...profile, bio: e.target.value})} />
+            <button type="submit" className="px-12 py-5 bg-primary-500 text-black rounded-2xl font-black uppercase tracking-widest text-[11px] hover:bg-primary-400 transition-all shadow-xl shadow-primary-500/20">Update Profile</button>
+          </form>
+        );
+
+      case 'categories':
+        return (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {categories.map(cat => (
+              <div key={cat.id} className="bg-slate-900 p-8 rounded-[40px] border border-white/5 flex items-center justify-between group hover:border-primary-500/20 transition-all">
+                <div className="flex items-center gap-5">
+                  <div className="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center text-primary-500"><Tag size={20}/></div>
+                  <h4 className="font-bold text-white text-lg">{cat.name}</h4>
+                </div>
+                <div className="flex gap-2">
+                  <button onClick={() => openModal(cat)} className="p-3 text-slate-500 hover:text-primary-500 transition-all"><Edit size={18}/></button>
+                  <button onClick={() => deleteItem('project_categories', cat.id)} className="p-3 text-slate-500 hover:text-red-500 transition-all"><Trash2 size={18}/></button>
+                </div>
+              </div>
+            ))}
+          </div>
+        );
+
+      case 'projects':
+        return (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {projects.map(p => (
+              <div key={p.id} className="bg-slate-900 p-8 rounded-[40px] border border-white/5 flex flex-col group hover:border-primary-500/20 transition-all shadow-2xl">
+                <div className="w-full h-48 bg-black rounded-3xl overflow-hidden mb-6 relative">
+                  <img src={p.image_url} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" alt={p.title} />
+                  <div className="absolute top-4 right-4 px-3 py-1 bg-black/50 backdrop-blur-md rounded-lg text-[9px] font-black uppercase text-primary-500 border border-white/10">{p.category}</div>
+                </div>
+                <h3 className="text-2xl font-black text-white mb-4 line-clamp-1">{p.title}</h3>
+                <div className="flex justify-between items-center mt-auto">
+                   <div className="flex gap-2">
+                      <button onClick={() => openModal(p)} className="p-3 bg-white/5 rounded-xl text-slate-400 hover:text-primary-500 transition-all"><Edit size={18}/></button>
+                      <button onClick={() => deleteItem('projects', p.id)} className="p-3 bg-red-500/10 rounded-xl text-red-500 hover:bg-red-500 transition-all"><Trash2 size={18}/></button>
+                   </div>
+                   {p.gallery_type === 'video' ? <Video size={18} className="text-slate-500"/> : <ImageIcon size={18} className="text-slate-500"/>}
+                </div>
+              </div>
+            ))}
+          </div>
+        );
+
+      default:
+        return <div className="py-20 text-center text-slate-600 font-bold uppercase tracking-widest text-xs">Accessing System...</div>;
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-slate-950 flex flex-col md:flex-row text-slate-100 antialiased selection:bg-primary-500 selection:text-black font-sans">
+    <div className="min-h-screen bg-slate-950 flex flex-col md:flex-row text-slate-100 antialiased font-sans">
       <aside className="w-full md:w-72 bg-slate-900 border-r border-white/5 p-8 flex flex-col h-screen sticky top-0 z-40">
         <div className="mb-12 px-2 flex items-center gap-4">
-          <div className="w-10 h-10 bg-primary-500 rounded-xl flex items-center justify-center font-black text-black text-sm">A</div>
-          <h1 className="text-xl font-black bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">ADMIN OS</h1>
+          <div className="w-10 h-10 bg-primary-500 rounded-xl flex items-center justify-center font-black text-black text-sm shadow-lg shadow-primary-500/20">A</div>
+          <h1 className="text-xl font-black text-white tracking-tighter uppercase">Admin Panel</h1>
         </div>
-        <nav className="flex-1 space-y-2 overflow-y-auto custom-scrollbar">
+        <nav className="flex-1 space-y-2 overflow-y-auto custom-scrollbar pr-2">
           {[
             { id: 'profile', icon: <User size={18}/>, label: 'Identity' },
             { id: 'socials', icon: <Share2 size={18}/>, label: 'Links' },
+            { id: 'categories', icon: <Tag size={18}/>, label: 'Categories' },
             { id: 'skills', icon: <Cpu size={18}/>, label: 'Skills' },
-            { id: 'timeline', icon: <History size={18}/>, label: 'Timeline' },
-            { id: 'categories', icon: <Tag size={18}/>, label: 'Taxonomy' },
             { id: 'projects', icon: <Briefcase size={18}/>, label: 'Portfolio' },
+            { id: 'blogs', icon: <FileText size={18}/>, label: 'Blog' },
             { id: 'services', icon: <Layers size={18}/>, label: 'Services' },
+            { id: 'timeline', icon: <History size={18}/>, label: 'Timeline' },
             { id: 'why', icon: <Award size={18}/>, label: 'Why Me' },
             { id: 'testimonials', icon: <Star size={18}/>, label: 'Reviews' },
             { id: 'messages', icon: <MessageSquare size={18}/>, label: 'Inbox' }
@@ -238,106 +341,73 @@ const Dashboard: React.FC = () => {
           ))}
         </nav>
         <div className="mt-8 pt-8 border-t border-white/5 space-y-2">
-           <Link to="/" className="px-5 py-4 text-slate-400 font-bold flex items-center gap-3 hover:text-primary-500 transition-all text-[10px] uppercase tracking-widest"><Globe size={18}/> View Live</Link>
+           <Link to="/" className="w-full flex items-center gap-4 px-5 py-4 text-slate-400 font-bold hover:text-primary-500 transition-all text-[10px] uppercase tracking-widest"><Globe size={18}/> View Site</Link>
            <button onClick={handleLogout} className="w-full px-5 py-4 text-red-500 font-bold flex items-center gap-3 hover:bg-red-500/5 rounded-2xl transition-all text-[10px] uppercase tracking-widest"><LogOut size={18}/> Disconnect</button>
         </div>
       </aside>
 
-      <main className="flex-1 p-8 md:p-12 pb-32 overflow-x-hidden relative">
-        <div className="flex justify-between items-end mb-12">
-          <div>
-            <p className="text-[10px] font-black uppercase text-primary-500 tracking-[0.4em] mb-2">Management Panel</p>
-            <h2 className="text-4xl font-black capitalize text-white tracking-tighter">{activeTab.replace('_', ' ')}</h2>
+      <main className="flex-1 p-8 md:p-12 pb-32 overflow-y-auto relative">
+        {isProcessing && (
+          <div className="absolute top-10 right-10 bg-primary-500/10 border border-primary-500/50 p-4 rounded-2xl flex items-center gap-3 z-50">
+            <Loader2 size={16} className="animate-spin text-primary-500" />
+            <span className="text-[10px] font-black uppercase tracking-widest text-primary-500">Processing...</span>
           </div>
-          {['skills', 'projects', 'services', 'testimonials', 'socials', 'why', 'categories', 'timeline'].includes(activeTab) && (
-            <button onClick={() => { setCurrentItem({}); setIsEditing(false); setIsModalOpen(true); }} className="px-8 py-4 bg-primary-500 text-black rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center gap-3 shadow-xl hover:scale-[1.02] transition-transform">
+        )}
+        <div className="flex justify-between items-end mb-12">
+          <h2 className="text-5xl font-black capitalize text-white tracking-tighter">{activeTab.replace('_', ' ')}</h2>
+          {activeTab !== 'profile' && activeTab !== 'messages' && !tableMissing && (
+            <button onClick={() => openModal()} className="px-8 py-4 bg-primary-500 text-black rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center gap-3 hover:bg-primary-400 transition-all shadow-xl shadow-primary-500/20 active:scale-95">
               <Plus size={18} /> New Entry
             </button>
           )}
         </div>
-
-        {loading ? (
-          <div className="flex flex-col items-center justify-center py-40 space-y-4">
-             <Loader2 className="animate-spin text-primary-500" size={48} />
-             <p className="text-[10px] font-black uppercase tracking-[0.5em] text-slate-500">Syncing with Cloud...</p>
-          </div>
-        ) : (
-          <div className="max-w-6xl mx-auto">
-            {activeTab === 'profile' && profile && (
-              <form onSubmit={saveProfileChanges} className="bg-slate-900/50 p-12 rounded-[56px] border border-white/5 space-y-10 shadow-2xl backdrop-blur-sm">
-                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-                    <div className="lg:col-span-8 space-y-8">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                          <div className="space-y-2">
-                            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Identity Name</label>
-                            <input className="w-full bg-slate-800 p-5 rounded-2xl text-white outline-none border border-white/5 focus:ring-2 focus:ring-primary-500/50" value={profile.name} onChange={e => setProfile({...profile, name: e.target.value})} />
-                          </div>
-                          <div className="space-y-2">
-                            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Hero Title</label>
-                            <input className="w-full bg-slate-800 p-5 rounded-2xl text-white outline-none border border-white/5 focus:ring-2 focus:ring-primary-500/50" value={profile.title} onChange={e => setProfile({...profile, title: e.target.value})} />
-                          </div>
-                      </div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                          <div className="space-y-2">
-                            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Showreel Video URL (YouTube/Vimeo)</label>
-                            <input className="w-full bg-slate-800 p-5 rounded-2xl text-white outline-none border border-white/5 focus:ring-2 focus:ring-primary-500/50" value={profile.video_url || ''} onChange={e => setProfile({...profile, video_url: e.target.value})} placeholder="https://www.youtube.com/watch?v=..." />
-                          </div>
-                          <div className="space-y-2">
-                            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Resume Download URL</label>
-                            <input className="w-full bg-slate-800 p-5 rounded-2xl text-white outline-none border border-white/5 focus:ring-2 focus:ring-primary-500/50" value={profile.resume_url || ''} onChange={e => setProfile({...profile, resume_url: e.target.value})} placeholder="https://drive.google.com/..." />
-                          </div>
-                      </div>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                          <div className="space-y-2"><label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Contact Email</label><input className="w-full bg-slate-800 p-5 rounded-2xl text-white outline-none border border-white/5" value={profile.email || ''} onChange={e => setProfile({...profile, email: e.target.value})} /></div>
-                          <div className="space-y-2"><label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Phone Number</label><input className="w-full bg-slate-800 p-5 rounded-2xl text-white outline-none border border-white/5" value={profile.phone || ''} onChange={e => setProfile({...profile, phone: e.target.value})} /></div>
-                          <div className="space-y-2"><label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Location</label><input className="w-full bg-slate-800 p-5 rounded-2xl text-white outline-none border border-white/5" value={profile.location || ''} onChange={e => setProfile({...profile, location: e.target.value})} /></div>
-                      </div>
-                      <div className="space-y-2"><label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">About Page Headline</label><input className="w-full bg-slate-800 p-5 rounded-2xl text-white outline-none border border-white/5" value={profile.about_headline || ''} onChange={e => setProfile({...profile, about_headline: e.target.value})} /></div>
-                      <div className="space-y-2"><label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Narrative Bio</label><textarea className="w-full bg-slate-800 p-5 rounded-2xl text-white outline-none border border-white/5 h-40" value={profile.bio} onChange={e => setProfile({...profile, bio: e.target.value})} /></div>
-                    </div>
-                    <div className="lg:col-span-4 space-y-8">
-                      <div className="space-y-4">
-                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Hero Portrait</label>
-                        <div className="relative aspect-[4/5] rounded-[48px] overflow-hidden bg-slate-800 border-2 border-dashed border-white/5 group hover:border-primary-500 transition-all flex items-center justify-center">
-                          {uploading ? <Loader2 className="animate-spin text-primary-500" size={32} /> : profile.avatar_url ? <img src={profile.avatar_url} className="w-full h-full object-cover" /> : <ImageIcon className="text-slate-700" size={40} />}
-                          <label className="absolute inset-0 cursor-pointer"><input type="file" className="hidden" accept="image/*" onChange={handleAvatarUpload} disabled={uploading} /></label>
-                        </div>
-                      </div>
-                    </div>
-                 </div>
-                 <button type="submit" disabled={loading || uploading} className="w-full py-6 bg-primary-500 text-black rounded-3xl font-black uppercase tracking-[0.2em] text-[11px] shadow-lg hover:scale-[1.01] transition-all">Update Identity</button>
-              </form>
-            )}
-            {/* The rest of activeTab checks remain the same but omitted for brevity in response... */}
-          </div>
-        )}
+        {renderContent()}
       </main>
 
-      {/* MODAL SYSTEM */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/98 backdrop-blur-xl overflow-y-auto">
-           <div className={`bg-slate-900 w-full rounded-[56px] border border-white/10 p-12 space-y-10 my-auto max-w-2xl`}>
-              <div className="flex justify-between items-center">
-                 <h3 className="text-2xl font-black text-white capitalize">{isEditing ? 'Modify' : 'New'} {activeTab.replace('_', ' ')}</h3>
-                 <button onClick={() => setIsModalOpen(false)} className="p-3 bg-white/5 rounded-full text-slate-500 hover:text-white transition-all"><X size={20}/></button>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/95 backdrop-blur-xl overflow-y-auto">
+           <div className="bg-[#0a0a0a] w-full max-w-2xl rounded-[40px] border border-white/10 p-12 my-10 relative shadow-[0_40px_100px_rgba(0,0,0,0.8)]">
+              <button onClick={() => setIsModalOpen(false)} className="absolute top-8 right-8 p-3 bg-white/5 text-slate-500 hover:text-white rounded-full transition-all"><X size={24}/></button>
+              
+              <div className="mb-10">
+                <span className="text-primary-500 text-[10px] font-black uppercase tracking-[0.3em] block mb-2">System Modal</span>
+                <h3 className="text-3xl font-black text-white capitalize">{isEditing ? 'Modify' : 'Create'} {activeTab.replace('s', '')}</h3>
               </div>
 
               <form onSubmit={handleSubmitItem} className="space-y-6">
                  {activeTab === 'projects' && (
-                    <div className="space-y-4">
-                       <input required className="w-full bg-slate-800 p-5 rounded-2xl text-white outline-none" placeholder="Project Title" value={currentItem.title || ''} onChange={e => setCurrentItem({...currentItem, title: e.target.value})} />
-                       <input className="w-full bg-slate-800 p-5 rounded-2xl text-white outline-none" placeholder="Video URL (YouTube/Vimeo)" value={currentItem.video_url || ''} onChange={e => setCurrentItem({...currentItem, video_url: e.target.value})} />
-                       <select className="w-full bg-slate-800 p-5 rounded-2xl text-white outline-none" value={currentItem.category || ''} onChange={e => setCurrentItem({...currentItem, category: e.target.value})}>
-                          <option value="">Select Category</option>
-                          {projectCategories.map(c => <option key={c.id} value={c.name}>{c.name}</option>)}
-                       </select>
-                       <textarea className="w-full bg-slate-800 p-5 rounded-2xl text-white outline-none h-32" placeholder="Description" value={currentItem.description || ''} onChange={e => setCurrentItem({...currentItem, description: e.target.value})} />
-                       <input className="w-full bg-slate-800 p-5 rounded-2xl text-white outline-none" placeholder="Live Link" value={currentItem.live_url || ''} onChange={e => setCurrentItem({...currentItem, live_url: e.target.value})} />
-                       <input className="w-full bg-slate-800 p-5 rounded-2xl text-white outline-none" placeholder="Thumbnail Image URL" value={currentItem.image_url || ''} onChange={e => setCurrentItem({...currentItem, image_url: e.target.value})} />
+                    <div className="space-y-5">
+                       <input required className="w-full bg-[#111] p-5 rounded-xl text-white border-none focus:ring-1 focus:ring-primary-500/50 outline-none font-medium" placeholder="Project Title" value={currentItem.title || ''} onChange={e => setCurrentItem({...currentItem, title: e.target.value})} />
+                       <div className="space-y-2">
+                         <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 block ml-2">Category</label>
+                         <select required className="w-full bg-[#111] p-5 rounded-xl text-white border-none focus:ring-1 focus:ring-primary-500/50 outline-none font-medium appearance-none" value={currentItem.category || ''} onChange={e => setCurrentItem({...currentItem, category: e.target.value})}>
+                            <option value="">Select Category</option>
+                            {categories.map(cat => (
+                              <option key={cat.id} value={cat.name}>{cat.name}</option>
+                            ))}
+                         </select>
+                       </div>
+                       <div>
+                         <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 block mb-3">Thumbnail</label>
+                         <label className="w-full cursor-pointer bg-[#111] hover:bg-primary-500/10 border border-white/5 group text-slate-400 p-5 rounded-xl transition-all flex items-center justify-center gap-4">
+                            {uploading ? <Loader2 size={18} className="animate-spin text-primary-500" /> : <Upload size={18} />}
+                            <span className="text-xs font-black uppercase tracking-widest">{currentItem.image_url ? 'File Ready' : 'Upload File'}</span>
+                            <input type="file" className="hidden" accept="image/*" onChange={(e) => handleFileUpload(e, 'image_url')} />
+                         </label>
+                       </div>
+                       <textarea required className="w-full bg-[#111] p-6 rounded-2xl text-white border-none focus:ring-1 focus:ring-primary-500/50 outline-none h-32 resize-none font-medium" placeholder="Project Description" value={currentItem.description || ''} onChange={e => setCurrentItem({...currentItem, description: e.target.value})} />
                     </div>
                  )}
-                 {/* Logic for other forms... */}
-                 <button type="submit" className="w-full py-5 bg-primary-500 text-black rounded-3xl font-black uppercase tracking-widest text-[10px] shadow-2xl hover:bg-primary-400 transition-all">Save Record</button>
+
+                 {activeTab === 'categories' && (
+                    <div className="space-y-5">
+                       <input required className="w-full bg-[#111] p-5 rounded-xl text-white focus:ring-1 focus:ring-primary-500/50 outline-none font-medium" placeholder="Category Name" value={currentItem.name || ''} onChange={e => setCurrentItem({...currentItem, name: e.target.value})} />
+                    </div>
+                 )}
+
+                 <button type="submit" disabled={isProcessing || uploading} className="w-full py-6 bg-primary-500 text-black rounded-3xl font-black uppercase tracking-[0.2em] text-[11px] shadow-xl shadow-primary-500/20 active:scale-95 transition-all mt-4 disabled:opacity-50">
+                    {isProcessing ? 'Syncing...' : uploading ? 'Uploading...' : 'Confirm Changes'}
+                 </button>
               </form>
            </div>
         </div>
