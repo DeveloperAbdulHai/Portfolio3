@@ -192,13 +192,13 @@ const Projects: React.FC<ProjectsProps> = ({ projects, isHomePage = false }) => 
           </AnimatePresence>
         </div>
 
-        {/* View More Button for Home Page */}
+        {/* View More Button for Home Page - Aligned Right */}
         {isHomePage && hasMore && (
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="mt-20 flex justify-center"
+            className="mt-20 flex justify-end"
           >
             <button 
               onClick={() => navigate('/portfolio')}
