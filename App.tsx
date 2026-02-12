@@ -6,6 +6,7 @@ import { Toaster } from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 import BackgroundLights from './components/BackgroundLights';
 import CustomCursor from './components/CustomCursor';
+import ScrollToTop from './components/ScrollToTop';
 
 // Lazy loading pages for better performance
 const Home = React.lazy(() => import('./pages/Home'));
@@ -102,6 +103,7 @@ const App: React.FC = () => {
       <HashRouter>
         <CustomCursor />
         <BackgroundLights />
+        <ScrollToTop />
         <Suspense fallback={<PageLoader />}>
           <AnimatePresence mode="wait">
             <Routes>

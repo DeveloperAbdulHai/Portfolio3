@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowRight, Play, X, Download } from 'lucide-react';
+import { ArrowRight, Play, X, Download, ChevronDown } from 'lucide-react';
 import * as LucideIcons from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Profile, SocialLink } from '../types';
@@ -67,6 +67,13 @@ const Hero: React.FC<HeroProps> = ({ profile, socials }) => {
       opacity: 1, 
       y: 0,
       transition: { duration: 0.8, ease: "easeOut" }
+    }
+  };
+
+  const scrollToNextSection = () => {
+    const nextSection = document.getElementById('expertise');
+    if (nextSection) {
+      nextSection.scrollIntoView({ behavior: 'smooth' });
     }
   };
 
@@ -183,6 +190,24 @@ const Hero: React.FC<HeroProps> = ({ profile, socials }) => {
           </motion.div>
         </div>
       </div>
+
+      {/* Scroll Down Indicator */}
+      <motion.div 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 2, duration: 1 }}
+        className="absolute bottom-10 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-4 cursor-pointer"
+        onClick={scrollToNextSection}
+      >
+        <span className="text-[10px] font-black uppercase tracking-[0.6em] text-slate-500 rotate-180 [writing-mode:vertical-lr] mb-2">Scroll</span>
+        <motion.div 
+          animate={{ y: [0, 8, 0] }}
+          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+          className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-primary-500 shadow-lg backdrop-blur-sm"
+        >
+          <ChevronDown size={20} />
+        </motion.div>
+      </motion.div>
 
       <AnimatePresence>
         {isVideoOpen && profile?.video_url && (
