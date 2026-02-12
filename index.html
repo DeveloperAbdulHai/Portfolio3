@@ -10,6 +10,10 @@
         font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
         background-color: #050505;
         color: #f8fafc;
+        margin: 0;
+      }
+      #root {
+        min-height: 100vh;
       }
       .glass-effect {
         background: rgba(255, 255, 255, 0.03);
@@ -32,7 +36,7 @@
       }
     </style>
     <script>
-      tailwind.config = {
+      window.tailwind.config = {
         darkMode: 'class',
         theme: {
           extend: {
@@ -79,7 +83,7 @@
 </head>
   <body class="bg-background antialiased overflow-x-hidden">
     <div id="root"></div>
-    <!-- Vite entry point -->
+    <!-- Vite entry point: Vite will bundle index.tsx and all its imports automatically -->
     <script type="module" src="/index.tsx"></script>
   </body>
 </html>
