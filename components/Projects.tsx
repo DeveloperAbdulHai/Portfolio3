@@ -232,9 +232,10 @@ const Projects: React.FC<ProjectsProps> = ({ projects, isHomePage = false }) => 
                animate={{ y: 0, scale: 1 }} 
                className="w-full max-w-6xl bg-slate-900 rounded-2xl border border-white/10 overflow-hidden shadow-[0_40px_100px_rgba(0,0,0,0.6)] my-auto relative"
              >
+                {/* Close Button - Moved slightly and increased contrast for mobile */}
                 <button 
                   onClick={closeModals} 
-                  className="absolute top-8 right-8 p-4 bg-white/5 text-white rounded-full hover:bg-primary-500 hover:text-black transition-all z-[250] shadow-2xl backdrop-blur-md border border-white/5"
+                  className="absolute top-6 right-6 md:top-8 md:right-8 p-4 bg-black/60 text-white rounded-full hover:bg-primary-500 hover:text-black transition-all z-[300] shadow-2xl backdrop-blur-xl border border-white/10"
                 >
                   <X size={20} />
                 </button>
@@ -270,10 +271,10 @@ const Projects: React.FC<ProjectsProps> = ({ projects, isHomePage = false }) => 
 
                           {projectImages.length > 1 && (
                             <>
-                              <button onClick={handlePrev} className="absolute left-6 top-1/2 -translate-y-1/2 p-4 bg-black/40 text-white rounded-full backdrop-blur-md opacity-0 group-hover/media:opacity-100 transition-all hover:bg-primary-500 hover:text-black z-20">
+                              <button onClick={handlePrev} className="absolute left-6 top-1/2 -translate-y-1/2 p-4 bg-black/40 text-white rounded-full backdrop-blur-md lg:opacity-0 lg:group-hover/media:opacity-100 transition-all hover:bg-primary-500 hover:text-black z-20">
                                 <ChevronLeft size={24} />
                               </button>
-                              <button onClick={handleNext} className="absolute right-6 top-1/2 -translate-y-1/2 p-4 bg-black/40 text-white rounded-full backdrop-blur-md opacity-0 group-hover/media:opacity-100 transition-all hover:bg-primary-500 hover:text-black z-20">
+                              <button onClick={handleNext} className="absolute right-6 top-1/2 -translate-y-1/2 p-4 bg-black/40 text-white rounded-full backdrop-blur-md lg:opacity-0 lg:group-hover/media:opacity-100 transition-all hover:bg-primary-500 hover:text-black z-20">
                                 <ChevronRight size={24} />
                               </button>
                               
@@ -287,19 +288,19 @@ const Projects: React.FC<ProjectsProps> = ({ projects, isHomePage = false }) => 
                         </div>
                       )}
 
-                      {/* View Toggles & Maximize */}
-                      <div className="absolute top-10 left-10 flex gap-2 z-40">
+                      {/* View Toggles */}
+                      <div className="absolute top-6 left-6 md:top-10 md:left-10 flex gap-2 z-40">
                         {selectedProject.video_url && (
                           <>
                             <button 
                               onClick={() => setActiveTab('gallery')} 
-                              className={`p-3 rounded-xl flex items-center gap-3 text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'gallery' ? 'bg-primary-500 text-black' : 'bg-black/40 text-white hover:bg-black/60 backdrop-blur-md border border-white/5'}`}
+                              className={`p-3 rounded-xl flex items-center gap-3 text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'gallery' ? 'bg-primary-500 text-black' : 'bg-black/60 text-white hover:bg-black/80 backdrop-blur-md border border-white/10'}`}
                             >
                               <ImageIcon size={14} /> Gallery
                             </button>
                             <button 
                               onClick={() => setActiveTab('video')} 
-                              className={`p-3 rounded-xl flex items-center gap-3 text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'video' ? 'bg-primary-500 text-black' : 'bg-black/40 text-white hover:bg-black/60 backdrop-blur-md border border-white/5'}`}
+                              className={`p-3 rounded-xl flex items-center gap-3 text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'video' ? 'bg-primary-500 text-black' : 'bg-black/60 text-white hover:bg-black/80 backdrop-blur-md border border-white/10'}`}
                             >
                               <Youtube size={14} /> Video
                             </button>
@@ -307,14 +308,14 @@ const Projects: React.FC<ProjectsProps> = ({ projects, isHomePage = false }) => 
                         )}
                       </div>
 
-                      {/* Full Screen Button (Maximize) */}
+                      {/* Full Screen Button (Maximize) - Fixed visibility for mobile */}
                       {activeTab === 'gallery' && (
                         <button 
                           onClick={(e) => {
                             e.stopPropagation();
                             setIsLightboxOpen(true);
                           }}
-                          className="absolute top-10 right-10 p-4 bg-black/40 text-white rounded-full backdrop-blur-md opacity-0 group-hover/media:opacity-100 transition-all hover:bg-primary-500 hover:text-black z-40 border border-white/5 pointer-events-auto"
+                          className="absolute bottom-6 right-6 md:top-10 md:right-10 md:bottom-auto p-4 bg-black/60 text-white rounded-full backdrop-blur-md transition-all hover:bg-primary-500 hover:text-black z-40 border border-white/10 pointer-events-auto"
                         >
                           <Maximize2 size={18} />
                         </button>
@@ -413,13 +414,13 @@ const Projects: React.FC<ProjectsProps> = ({ projects, isHomePage = false }) => 
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-[300] bg-black/98 flex flex-col items-center justify-center p-6"
           >
-             {/* Full Screen Close Button - Increased z-index to be strictly on top */}
+             {/* Full Screen Close Button */}
              <button 
                onClick={(e) => {
                  e.stopPropagation();
                  setIsLightboxOpen(false);
                }}
-               className="absolute top-10 right-10 p-5 bg-white/5 text-white rounded-full hover:bg-primary-500 hover:text-black transition-all z-[350] border border-white/10 pointer-events-auto shadow-2xl"
+               className="absolute top-10 right-10 p-5 bg-black/60 text-white rounded-full hover:bg-primary-500 hover:text-black transition-all z-[350] border border-white/10 pointer-events-auto shadow-2xl backdrop-blur-xl"
              >
                <X size={24} />
              </button>
@@ -429,13 +430,13 @@ const Projects: React.FC<ProjectsProps> = ({ projects, isHomePage = false }) => 
                   <>
                     <button 
                       onClick={(e) => { e.stopPropagation(); handlePrev(); }}
-                      className="absolute left-10 p-6 bg-white/5 text-white rounded-full hover:bg-primary-500 hover:text-black transition-all z-[320] pointer-events-auto"
+                      className="absolute left-6 md:left-10 p-6 bg-black/40 text-white rounded-full hover:bg-primary-500 hover:text-black transition-all z-[320] pointer-events-auto backdrop-blur-md"
                     >
                       <ChevronLeft size={32} />
                     </button>
                     <button 
                       onClick={(e) => { e.stopPropagation(); handleNext(); }}
-                      className="absolute right-10 p-6 bg-white/5 text-white rounded-full hover:bg-primary-500 hover:text-black transition-all z-[320] pointer-events-auto"
+                      className="absolute right-6 md:right-10 p-6 bg-black/40 text-white rounded-full hover:bg-primary-500 hover:text-black transition-all z-[320] pointer-events-auto backdrop-blur-md"
                     >
                       <ChevronRight size={32} />
                     </button>
@@ -452,7 +453,7 @@ const Projects: React.FC<ProjectsProps> = ({ projects, isHomePage = false }) => 
                   onClick={(e) => e.stopPropagation()}
                 />
 
-                <div className="absolute bottom-10 left-1/2 -translate-x-1/2 px-6 py-3 bg-white/5 border border-white/10 rounded-full text-[11px] font-black uppercase tracking-[0.4em] text-white backdrop-blur-md z-[320]">
+                <div className="absolute bottom-10 left-1/2 -translate-x-1/2 px-6 py-3 bg-black/60 border border-white/10 rounded-full text-[11px] font-black uppercase tracking-[0.4em] text-white backdrop-blur-md z-[320]">
                    {currentImgIndex + 1} / {projectImages.length}
                 </div>
              </div>
