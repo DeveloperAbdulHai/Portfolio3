@@ -14,6 +14,7 @@ const About = React.lazy(() => import('./pages/About'));
 const ServicesPage = React.lazy(() => import('./pages/ServicesPage'));
 const Portfolio = React.lazy(() => import('./pages/Portfolio'));
 const Blog = React.lazy(() => import('./pages/Blog'));
+const BlogPostDetail = React.lazy(() => import('./pages/BlogPostDetail'));
 const ContactPage = React.lazy(() => import('./pages/ContactPage'));
 const AdminLogin = React.lazy(() => import('./pages/AdminLogin'));
 const Dashboard = React.lazy(() => import('./pages/Dashboard'));
@@ -112,6 +113,7 @@ const App: React.FC = () => {
               <Route path="/services" element={<PageTransition><ServicesPage /></PageTransition>} />
               <Route path="/portfolio" element={<PageTransition><Portfolio /></PageTransition>} />
               <Route path="/blog" element={<PageTransition><Blog /></PageTransition>} />
+              <Route path="/blog/:id" element={<PageTransition><BlogPostDetail /></PageTransition>} />
               <Route path="/contact" element={<PageTransition><ContactPage /></PageTransition>} />
               <Route path="/admin" element={session ? <Navigate to="/dashboard" /> : <PageTransition><AdminLogin /></PageTransition>} />
               <Route path="/dashboard/*" element={session ? <PageTransition><Dashboard /></PageTransition> : <Navigate to="/admin" />} />

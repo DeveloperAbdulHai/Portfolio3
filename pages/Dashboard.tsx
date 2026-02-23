@@ -126,16 +126,18 @@ const Dashboard: React.FC = () => {
     setUploading(true);
     try {
       const uploadedUrls: string[] = [];
+      const bucketName = activeTab === 'blogs' ? 'Blog' : 'Portfolio';
+      
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
         const fileExt = file.name.split('.').pop();
         const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
         const filePath = `uploads/${fileName}`;
 
-        const { error: uploadError } = await supabase.storage.from('Portfolio').upload(filePath, file);
+        const { error: uploadError } = await supabase.storage.from(bucketName).upload(filePath, file);
         if (uploadError) throw uploadError;
 
-        const { data } = supabase.storage.from('Portfolio').getPublicUrl(filePath);
+        const { data } = supabase.storage.from(bucketName).getPublicUrl(filePath);
         uploadedUrls.push(data.publicUrl);
       }
 
@@ -599,7 +601,44 @@ const Dashboard: React.FC = () => {
                     </div>
                  )}
 
-                 {activeTab !== 'projects' && (
+                 {activeTab === 'blogs' && (
+                    <div className="space-y-6">
+                       <div className="space-y-2">
+                         <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 block ml-1">BLOG TITLE</label>
+                         <input required className="w-full bg-[#111] p-5 rounded-xl text-white border-none outline-none font-medium" placeholder="Article Title" value={currentItem.title || ''} onChange={e => setCurrentItem({...currentItem, title: e.target.value})} />
+                       </div>
+                       
+                       <div className="grid grid-cols-2 gap-4">
+                         <div className="space-y-2">
+                           <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 block ml-1">CATEGORY</label>
+                           <input required className="w-full bg-[#111] p-5 rounded-xl text-white border-none outline-none font-medium" placeholder="e.g. Design" value={currentItem.category || ''} onChange={e => setCurrentItem({...currentItem, category: e.target.value})} />
+                         </div>
+                         <div className="space-y-2">
+                           <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 block ml-1">READ TIME</label>
+                           <input required className="w-full bg-[#111] p-5 rounded-xl text-white border-none outline-none font-medium" placeholder="e.g. 5 min read" value={currentItem.read_time || ''} onChange={e => setCurrentItem({...currentItem, read_time: e.target.value})} />
+                         </div>
+                       </div>
+
+                       <div className="space-y-2">
+                         <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 block ml-1">COVER IMAGE</label>
+                         <label className="w-full cursor-pointer bg-[#111] border border-white/5 text-slate-400 p-5 rounded-xl flex items-center justify-between transition-all hover:bg-white/5">
+                            <div className="flex items-center gap-3">
+                              {uploading ? <Loader2 size={16} className="animate-spin text-primary-500" /> : <Upload size={16} />}
+                              <span className="text-[10px] font-black uppercase tracking-widest">{currentItem.image_url ? 'IMAGE READY' : 'UPLOAD COVER'}</span>
+                            </div>
+                            {currentItem.image_url && <img src={currentItem.image_url} className="w-8 h-8 rounded-lg object-cover border border-white/10" />}
+                            <input type="file" className="hidden" accept="image/*" onChange={(e) => handleFileUpload(e, 'image_url')} />
+                         </label>
+                       </div>
+
+                       <div className="space-y-2">
+                         <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 block ml-1">CONTENT</label>
+                         <textarea required className="w-full bg-[#111] p-6 rounded-2xl text-white border-none outline-none h-48 resize-none font-medium" placeholder="Write your article content..." value={currentItem.content || ''} onChange={e => setCurrentItem({...currentItem, content: e.target.value})} />
+                       </div>
+                    </div>
+                 )}
+
+                 {activeTab !== 'projects' && activeTab !== 'blogs' && (
                     <div className="space-y-5">
                        <input required className="w-full bg-[#111] p-5 rounded-xl text-white border-none outline-none" placeholder="Name/Title" value={currentItem.name || currentItem.title || currentItem.platform || ''} onChange={e => setCurrentItem({...currentItem, [activeTab === 'socials' ? 'platform' : (activeTab === 'skills' || activeTab === 'categories' ? 'name' : 'title')]: e.target.value})} />
                        {activeTab === 'socials' && <input className="w-full bg-[#111] p-5 rounded-xl text-white border-none outline-none" placeholder="URL" value={currentItem.url || ''} onChange={e => setCurrentItem({...currentItem, url: e.target.value})} />}

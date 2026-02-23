@@ -85,7 +85,7 @@ const Hero: React.FC<HeroProps> = ({ profile, socials }) => {
 
       <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 w-full grid grid-cols-1 lg:grid-cols-12 gap-16 items-center relative z-10">
         <motion.div 
-          className="lg:col-span-7 space-y-10"
+          className="lg:col-span-7 space-y-10 order-1 lg:order-1"
           variants={containerVariants}
           initial="hidden"
           animate="visible"
@@ -171,7 +171,7 @@ const Hero: React.FC<HeroProps> = ({ profile, socials }) => {
           </motion.div>
         </motion.div>
 
-        <div className="lg:col-span-5 relative hidden lg:block">
+        <div className="lg:col-span-5 relative order-2 lg:order-2 mt-12 lg:mt-0">
           <motion.div
             initial={{ opacity: 0, scale: 0.9, rotate: 2 }}
             animate={{ opacity: 1, scale: 1, rotate: 0 }}
