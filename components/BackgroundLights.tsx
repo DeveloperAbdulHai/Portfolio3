@@ -5,6 +5,7 @@ import { motion, useSpring, useMotionValue } from 'framer-motion';
 const BackgroundLights: React.FC = () => {
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
+  const [isMobile, setIsMobile] = useState(false);
 
   // Smooth out mouse movement
   const springConfig = { damping: 25, stiffness: 150 };
@@ -12,26 +13,36 @@ const BackgroundLights: React.FC = () => {
   const smoothY = useSpring(mouseY, springConfig);
 
   useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      mouseX.set(e.clientX);
-      mouseY.set(e.clientY);
+    const checkMobile = () => {
+      setIsMobile(window.matchMedia('(pointer: coarse)').matches);
     };
+    checkMobile();
+    
+    if (!isMobile) {
+      const handleMouseMove = (e: MouseEvent) => {
+        mouseX.set(e.clientX);
+        mouseY.set(e.clientY);
+      };
 
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, [mouseX, mouseY]);
+      window.addEventListener('mousemove', handleMouseMove);
+      return () => window.removeEventListener('mousemove', handleMouseMove);
+    }
+  }, [mouseX, mouseY, isMobile]);
 
   return (
     <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-      {/* Interactive Mouse Spotlight */}
-      <motion.div
-        className="absolute w-[800px] h-[800px] rounded-full bg-primary-500/5 blur-[120px]"
-        style={{
-          left: smoothX,
-          top: smoothY,
-          transform: 'translate(-50%, -50%)',
-        }}
-      />
+      {/* Interactive Mouse Spotlight - Disabled on mobile for performance */}
+      {!isMobile && (
+        <motion.div
+          className="absolute w-[800px] h-[800px] rounded-full bg-primary-500/5 blur-[120px]"
+          style={{
+            left: smoothX,
+            top: smoothY,
+            transform: 'translate(-50%, -50%)',
+            willChange: 'left, top',
+          }}
+        />
+      )}
 
       {/* Static/Floating Orbs */}
       <motion.div
@@ -45,7 +56,8 @@ const BackgroundLights: React.FC = () => {
           repeat: Infinity,
           ease: "easeInOut"
         }}
-        className="absolute -top-20 -left-20 w-[600px] h-[600px] bg-primary-500/10 blur-[150px] rounded-full"
+        className="absolute -top-20 -left-20 w-[600px] h-[600px] bg-primary-500/10 blur-[100px] md:blur-[150px] rounded-full"
+        style={{ willChange: 'transform' }}
       />
 
       <motion.div
@@ -60,7 +72,8 @@ const BackgroundLights: React.FC = () => {
           ease: "easeInOut",
           delay: 2
         }}
-        className="absolute top-1/2 -right-20 w-[500px] h-[500px] bg-blue-500/5 blur-[150px] rounded-full"
+        className="absolute top-1/2 -right-20 w-[500px] h-[500px] bg-blue-500/5 blur-[100px] md:blur-[150px] rounded-full"
+        style={{ willChange: 'transform' }}
       />
 
       <motion.div
@@ -73,7 +86,8 @@ const BackgroundLights: React.FC = () => {
           repeat: Infinity,
           ease: "linear"
         }}
-        className="absolute bottom-[-10%] left-[20%] w-[400px] h-[400px] bg-primary-500/5 blur-[100px] rounded-full"
+        className="absolute bottom-[-10%] left-[20%] w-[400px] h-[400px] bg-primary-500/5 blur-[80px] md:blur-[100px] rounded-full"
+        style={{ willChange: 'transform' }}
       />
       
       {/* Subtle Scanline/Grain Texture overlay */}

@@ -225,17 +225,17 @@ const Projects: React.FC<ProjectsProps> = ({ projects, isHomePage = false }) => 
             initial={{ opacity: 0 }} 
             animate={{ opacity: 1 }} 
             exit={{ opacity: 0 }} 
-            className="fixed inset-0 z-[200] flex items-center justify-center bg-black/98 backdrop-blur-3xl p-4 md:p-8 lg:p-12 overflow-y-auto custom-scrollbar"
+            className="fixed inset-0 z-[200] flex items-center justify-center bg-black/98 backdrop-blur-xl md:backdrop-blur-3xl p-4 md:p-8 lg:p-12 overflow-y-auto custom-scrollbar"
           >
              <motion.div 
                initial={{ y: 50, scale: 0.95 }} 
                animate={{ y: 0, scale: 1 }} 
-               className="w-full max-w-6xl bg-slate-900 rounded-2xl border border-white/10 overflow-hidden shadow-[0_40px_100px_rgba(0,0,0,0.6)] my-auto relative"
+               className="w-full max-w-6xl bg-slate-900 rounded-2xl border border-white/10 overflow-hidden shadow-[0_40px_100px_rgba(0,0,0,0.6)] my-auto relative will-change-transform"
              >
                 {/* Close Button - Moved slightly and increased contrast for mobile */}
                 <button 
                   onClick={closeModals} 
-                  className="absolute top-6 right-6 md:top-8 md:right-8 p-4 bg-black/60 text-white rounded-full hover:bg-primary-500 hover:text-black transition-all z-[300] shadow-2xl backdrop-blur-xl border border-white/10"
+                  className="absolute top-6 right-6 md:top-8 md:right-8 p-4 bg-black/60 text-white rounded-full hover:bg-primary-500 hover:text-black transition-all z-[300] shadow-2xl backdrop-blur-md md:backdrop-blur-xl border border-white/10"
                 >
                   <X size={20} />
                 </button>
@@ -263,7 +263,7 @@ const Projects: React.FC<ProjectsProps> = ({ projects, isHomePage = false }) => 
                           >
                              {projectImages.map((url, i) => (
                                <div key={i} className="w-full h-full shrink-0 snap-center flex items-center justify-center bg-black relative">
-                                  <img src={url} className="absolute inset-0 w-full h-full object-cover blur-3xl opacity-20 scale-110" alt="blur" loading="lazy" />
+                                  <img src={url} className="absolute inset-0 w-full h-full object-cover blur-xl md:blur-3xl opacity-20 scale-110" alt="blur" loading="lazy" />
                                   <img src={url} className="relative z-10 max-w-full max-h-full object-contain" alt={`${selectedProject.title} ${i}`} loading="lazy" />
                                </div>
                              ))}

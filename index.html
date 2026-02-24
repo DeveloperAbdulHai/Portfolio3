@@ -11,8 +11,15 @@
         background-color: #050505;
         color: #f8fafc;
         margin: 0;
-        cursor: none; /* Hide default cursor */
       }
+      
+      /* Only hide cursor on devices that actually have a mouse/fine pointer */
+      @media (pointer: fine) {
+        body, a, button, input, textarea, [role="button"] {
+          cursor: none !important;
+        }
+      }
+
       #root {
         min-height: 100vh;
       }
@@ -21,6 +28,11 @@
         backdrop-filter: blur(10px);
         border: 1px solid rgba(255, 255, 255, 0.05);
       }
+      
+      /* Performance optimizations */
+      .will-change-transform { will-change: transform; }
+      .will-change-opacity { will-change: opacity; }
+      
       /* Custom scrollbar */
       ::-webkit-scrollbar {
         width: 8px;
@@ -34,11 +46,6 @@
       }
       ::-webkit-scrollbar-thumb:hover {
         background: #00d084;
-      }
-      
-      /* Ensure clickable elements also hide cursor */
-      a, button, input, textarea, [role="button"] {
-        cursor: none !important;
       }
     </style>
     <script>

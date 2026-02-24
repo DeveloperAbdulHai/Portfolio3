@@ -79,9 +79,9 @@ const Hero: React.FC<HeroProps> = ({ profile, socials }) => {
 
   return (
     <section className="relative min-h-screen flex items-center pt-20 overflow-hidden bg-background">
-      <div className="absolute top-[-20%] right-[-10%] w-[800px] h-[800px] bg-primary-500/10 blur-[160px] rounded-full animate-pulse"></div>
-      <div className="absolute top-[20%] right-[-5%] w-[400px] h-[400px] bg-blue-500/5 blur-[120px] rounded-full"></div>
-      <div className="absolute bottom-[10%] left-[-5%] w-[400px] h-[400px] bg-primary-500/5 blur-[100px] rounded-full"></div>
+      <div className="absolute top-[-20%] right-[-10%] w-[800px] h-[800px] bg-primary-500/10 blur-[100px] md:blur-[160px] rounded-full animate-pulse" style={{ willChange: 'opacity' }}></div>
+      <div className="absolute top-[20%] right-[-5%] w-[400px] h-[400px] bg-blue-500/5 blur-[80px] md:blur-[120px] rounded-full"></div>
+      <div className="absolute bottom-[10%] left-[-5%] w-[400px] h-[400px] bg-primary-500/5 blur-[80px] md:blur-[100px] rounded-full"></div>
 
       <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 w-full grid grid-cols-1 lg:grid-cols-12 gap-16 items-center relative z-10">
         <motion.div 
@@ -198,6 +198,7 @@ const Hero: React.FC<HeroProps> = ({ profile, socials }) => {
                   animate={{ y: [0, -10, 0] }}
                   transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
                   className="glass-effect p-6 rounded-2xl flex items-center gap-6 border border-white/10 shadow-2xl"
+                  style={{ willChange: 'transform' }}
                 >
                   <div className="text-4xl font-black text-primary-500 drop-shadow-[0_0_10px_rgba(0,208,132,0.4)]">5+</div>
                   <div className="h-10 w-px bg-white/10"></div>
@@ -224,6 +225,7 @@ const Hero: React.FC<HeroProps> = ({ profile, socials }) => {
           animate={{ y: [0, 8, 0] }}
           transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
           className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-primary-500 shadow-lg backdrop-blur-sm"
+          style={{ willChange: 'transform' }}
         >
           <ChevronDown size={20} />
         </motion.div>

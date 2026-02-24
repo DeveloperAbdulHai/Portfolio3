@@ -69,7 +69,7 @@ const About: React.FC = () => {
               {/* Stats Grid */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mt-12">
                 {stats.map((stat, i) => (
-                  <div key={i} className="p-6 bg-white/5 border border-white/5 rounded-3xl group hover:border-primary-500/30 transition-all">
+                  <div key={i} className="p-6 bg-white/5 border border-white/5 rounded-3xl group hover:border-primary-500/30 transition-all will-change-transform">
                     <div className="mb-4">{stat.icon}</div>
                     <div className="text-2xl font-black text-white mb-1">{stat.value}</div>
                     <div className="text-[9px] font-bold uppercase tracking-widest text-slate-500">{stat.label}</div>
@@ -78,9 +78,9 @@ const About: React.FC = () => {
               </div>
             </motion.div>
             <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="relative">
-               <div className="aspect-square rounded-[60px] overflow-hidden border border-white/10 p-4 bg-white/5 shadow-2xl relative group">
+               <div className="aspect-square rounded-[40px] md:rounded-[60px] overflow-hidden border border-white/10 p-4 bg-white/5 shadow-xl md:shadow-2xl relative group">
                   <div className="absolute inset-0 bg-primary-500/10 opacity-0 group-hover:opacity-100 transition-opacity z-10"></div>
-                  <img src={displayImage} className="w-full h-full object-cover rounded-[50px] transition-all duration-1000" alt={profile?.name || "Profile About Portrait"} />
+                  <img src={displayImage} className="w-full h-full object-cover rounded-[30px] md:rounded-[50px] transition-all duration-1000" alt={profile?.name || "Profile About Portrait"} />
                </div>
             </motion.div>
           </div>

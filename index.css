@@ -1,0 +1,73 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #050505;
+  --primary: #00d084;
+}
+
+body {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  background-color: #050505;
+  color: #f8fafc;
+  margin: 0;
+  cursor: none; /* Hide default cursor */
+}
+
+#root {
+  min-height: 100vh;
+}
+
+.glass-effect {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #050505;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #121212;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #00d084;
+}
+
+/* Ensure clickable elements also hide cursor */
+a, button, input, textarea, [role="button"] {
+  cursor: none !important;
+}
+
+/* Performance optimizations */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.will-change-transform {
+  will-change: transform;
+}
+
+.will-change-opacity {
+  will-change: opacity;
+}
+
+@media (max-width: 768px) {
+  .glass-effect {
+    backdrop-filter: blur(5px); /* Reduce blur on mobile */
+  }
+  
+  /* Disable heavy animations on low-power devices if possible */
+  .animate-pulse {
+    animation-duration: 4s; /* Slow down pulse on mobile */
+  }
+}

@@ -61,6 +61,7 @@ const PageTransition: React.FC<{ children: React.ReactNode }> = ({ children }) =
       exit={{ opacity: 0, y: -10 }}
       transition={{ duration: 0.5, ease: "easeOut" }}
       className="relative z-10"
+      style={{ willChange: 'transform, opacity' }}
     >
       {children}
     </motion.div>

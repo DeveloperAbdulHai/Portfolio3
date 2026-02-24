@@ -64,7 +64,7 @@ const Contact: React.FC<ContactProps> = ({ profile }) => {
   return (
     <section id="contact" className="py-32 bg-background border-t border-white/5 relative overflow-hidden">
       {/* Background decoration */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary-500/5 blur-[160px] rounded-full -z-10 pointer-events-none"></div>
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] md:w-[800px] h-[400px] md:h-[800px] bg-primary-500/5 blur-[80px] md:blur-[160px] rounded-full -z-10 pointer-events-none"></div>
 
       <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
         <div className="text-center mb-24">
