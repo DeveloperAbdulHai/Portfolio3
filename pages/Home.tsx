@@ -73,7 +73,7 @@ const Home: React.FC = () => {
   }
 
   return (
-    <div className="bg-background overflow-hidden scroll-smooth selection:bg-primary-500 selection:text-black">
+    <div className="bg-background overflow-hidden scroll-smooth min-h-screen">
       <Navbar />
       <Hero profile={profile} socials={socials} />
       {skills.length > 0 && <Skills skills={skills} />}

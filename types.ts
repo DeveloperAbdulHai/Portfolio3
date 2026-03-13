@@ -73,6 +73,7 @@ export interface WhyChooseMe {
   description: string;
   icon: string;
   order_index: number;
+  image_url?: string;
 }
 
 export interface Testimonial {

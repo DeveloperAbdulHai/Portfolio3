@@ -50,89 +50,88 @@ const ServicesPage: React.FC = () => {
   return (
     <div className="bg-background min-h-screen">
       <Navbar />
-      <main className="pt-32">
+      <main className="pt-28">
         <Services services={services} />
 
-        {/* Extended Details Section */}
-        <section className="py-32 bg-slate-950/30">
+        <section className="py-section bg-surface-muted border-y border-white/[0.06]">
           <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
               <div>
-                <span className="text-primary-500 text-[10px] font-black uppercase tracking-[0.4em] block mb-4">Core Benefits</span>
-                <h2 className="text-4xl md:text-5xl font-black text-white tracking-tighter mb-8">Elevating your <span className="text-primary-500">Digital Identity.</span></h2>
-                <div className="space-y-10">
+                <span className="text-primary-500 text-[11px] font-semibold uppercase tracking-widest block mb-4">Core benefits</span>
+                <h2 className="font-display text-display-xl font-bold text-white mb-8">Elevating your <span className="text-primary-500">brand.</span></h2>
+                <div className="space-y-8">
                   {benefits.map((benefit, i) => (
-                    <motion.div 
+                    <motion.div
                       key={i}
-                      initial={{ opacity: 0, x: -20 }}
+                      initial={{ opacity: 0, x: -12 }}
                       whileInView={{ opacity: 1, x: 0 }}
                       viewport={{ once: true }}
-                      transition={{ delay: i * 0.1 }}
-                      className="flex gap-6"
+                      transition={{ delay: i * 0.08 }}
+                      className="flex gap-5"
                     >
-                      <div className="w-12 h-12 bg-primary-500/10 rounded-xl flex items-center justify-center shrink-0">
+                      <div className="w-12 h-12 bg-primary-500/10 rounded-xl flex items-center justify-center shrink-0 text-primary-500">
                         {benefit.icon}
                       </div>
                       <div>
-                        <h4 className="text-white font-bold text-lg mb-2">{benefit.title}</h4>
+                        <h4 className="font-semibold text-white mb-1">{benefit.title}</h4>
                         <p className="text-slate-500 text-sm leading-relaxed">{benefit.desc}</p>
                       </div>
                     </motion.div>
                   ))}
                 </div>
               </div>
-              <div className="relative">
-                <div className="aspect-square rounded-[64px] bg-gradient-to-br from-primary-500/20 to-transparent p-px">
-                  <div className="w-full h-full bg-slate-950 rounded-[64px] p-12 flex flex-col justify-center">
-                    <CheckCircle2 className="text-primary-500 w-16 h-16 mb-8" />
-                    <h3 className="text-3xl font-black text-white mb-6">Quality Guaranteed</h3>
-                    <p className="text-slate-400 leading-relaxed mb-8">Every project undergoes a rigorous review process to ensure it meets the highest standards of performance, accessibility, and visual fidelity.</p>
-                    <div className="flex flex-wrap gap-3">
-                      {['Clean Code', 'SEO Optimized', 'Responsive', 'High Performance'].map(tag => (
-                        <span key={tag} className="px-4 py-2 bg-white/5 border border-white/5 rounded-full text-[10px] font-bold uppercase tracking-widest text-slate-500">{tag}</span>
-                      ))}
-                    </div>
-                  </div>
+              <motion.div
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                className="p-8 bg-surface border border-white/[0.06] rounded-3xl"
+              >
+                <CheckCircle2 className="text-primary-500 w-14 h-14 mb-6" />
+                <h3 className="font-display text-2xl font-bold text-white mb-4">Quality guaranteed</h3>
+                <p className="text-slate-500 leading-relaxed mb-6">Every project is reviewed for performance, accessibility, and visual impact.</p>
+                <div className="flex flex-wrap gap-2">
+                  {['Clean deliverables', 'On-brand', 'Responsive', 'On time'].map((tag) => (
+                    <span key={tag} className="px-3 py-1.5 bg-surface-elevated rounded-lg text-[11px] font-medium text-slate-500">{tag}</span>
+                  ))}
                 </div>
-              </div>
+              </motion.div>
             </div>
           </div>
         </section>
 
-        {/* Process Section */}
-        <section className="py-32 bg-slate-950/50 border-t border-white/5">
+        <section className="py-section bg-background">
           <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
-            <div className="text-center mb-24">
-              <span className="text-primary-500 text-[10px] font-black uppercase tracking-[0.4em] block mb-4">Workflow</span>
-              <h2 className="text-4xl md:text-5xl font-black text-white tracking-tighter">My Working <span className="text-primary-500">Process.</span></h2>
+            <div className="text-center mb-14">
+              <span className="text-primary-500 text-[11px] font-semibold uppercase tracking-widest block mb-4">Workflow</span>
+              <h2 className="font-display text-display-lg font-bold text-white">My working <span className="text-primary-500">process</span></h2>
             </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
               {steps.map((step, idx) => (
-                <motion.div 
+                <motion.div
                   key={idx}
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 16 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
-                  transition={{ delay: idx * 0.1 }}
-                  className="relative group text-center lg:text-left"
+                  transition={{ delay: idx * 0.08 }}
+                  className="relative group text-center lg:text-left p-6 bg-surface border border-white/[0.06] rounded-2xl hover:border-primary-500/20 transition-all"
                 >
-                  <div className="absolute -top-6 -left-4 text-7xl font-black text-white/[0.03] group-hover:text-primary-500/[0.05] transition-colors pointer-events-none">0{idx + 1}</div>
-                  
-                  <div className="relative z-10">
-                    <div className="w-16 h-16 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-center text-primary-500 mb-8 mx-auto lg:mx-0 group-hover:scale-110 group-hover:bg-primary-500 group-hover:text-black transition-all">
-                      {step.icon}
-                    </div>
-                    <h4 className="text-xl font-bold text-white mb-4">{step.title}</h4>
-                    <p className="text-slate-500 text-sm leading-relaxed font-medium">{step.desc}</p>
+                  <div className="text-5xl font-display font-bold text-white/[0.04] group-hover:text-primary-500/[0.08] pointer-events-none">0{idx + 1}</div>
+                  <div className="w-14 h-14 bg-surface-elevated rounded-xl flex items-center justify-center text-primary-500 mb-6 mx-auto lg:mx-0 group-hover:bg-primary-500 group-hover:text-black transition-all">
+                    {step.icon}
                   </div>
+                  <h4 className="font-display text-lg font-semibold text-white mb-3">{step.title}</h4>
+                  <p className="text-slate-500 text-sm leading-relaxed">{step.desc}</p>
                 </motion.div>
               ))}
             </div>
+            <div className="mt-14 text-center">
+              <a href="#contact" className="inline-flex items-center gap-2 text-primary-500 text-sm font-semibold hover:text-primary-400 transition-colors">
+                Start a project →
+              </a>
+            </div>
           </div>
         </section>
 
-        {/* Functional Contact Section */}
         <Contact profile={profile} />
       </main>
       <Footer profile={profile} />

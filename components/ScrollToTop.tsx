@@ -37,7 +37,7 @@ const ScrollToTop: React.FC = () => {
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
           onClick={scrollToTop}
-          className="fixed bottom-10 right-10 z-[60] w-14 h-14 bg-background/40 backdrop-blur-xl border border-white/10 text-primary-500 rounded-2xl flex items-center justify-center shadow-2xl hover:bg-primary-500 hover:text-black hover:border-primary-500 transition-all duration-300 group"
+          className="fixed bottom-8 right-8 z-[60] w-12 h-12 bg-surface backdrop-blur-xl border border-white/[0.08] text-primary-500 rounded-xl flex items-center justify-center hover:bg-primary-500 hover:text-black hover:border-primary-500 transition-all duration-300 group"
         >
           <div className="relative">
             <div className="absolute inset-0 bg-primary-500/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity rounded-full"></div>

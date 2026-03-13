@@ -1,73 +1,137 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Red+Hat+Display:ital,wght@0,300..900;1,300..900&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+@layer utilities {
+  .py-section {
+    @apply py-16 sm:py-20 lg:py-24;
+  }
+}
+
+/* ─── Design system — premium color palette (minimal but alive) ───────────── */
 :root {
-  --background: #050505;
-  --primary: #00d084;
+  /* Surfaces — dark blue-grey (not flat black) */
+  --_theme---base--surface--surface: #0c0d12;
+  --_theme---base--surface--raised: #13151c;
+  --_theme---base--surface--overlay: #1a1d26;
+  --_theme---base--surface--tint: rgba(91, 156, 240, 0.04);
+
+  /* Text — warm white + blue-grey for depth */
+  --_theme---base--text--primary: #f0f2f6;
+  --_theme---base--text--secondary: #9ba3b8;
+  --_theme---base--text--muted: #6b7289;
+
+  /* Borders */
+  --_theme---base--border--subtle: rgba(255, 255, 255, 0.06);
+  --_theme---base--border--accent: rgba(0, 208, 132, 0.2);
+
+  /* Primary accent — green (CTAs, key actions) */
+  --_theme---accent: #00d084;
+  --_theme---accent--hover: #00e090;
+  --_theme---accent--muted: rgba(0, 208, 132, 0.15);
+
+  /* Secondary accent — soft blue (highlights, trust, “why choose”) */
+  --_theme---accent--secondary: #5b9cf0;
+  --_theme---accent--secondary--muted: rgba(91, 156, 240, 0.15);
+
+  /* Warm accent — amber (floating cards, “what I provide”) */
+  --_theme---accent--warm: #e8b44a;
+  --_theme---accent--warm--muted: rgba(232, 180, 74, 0.12);
+
+  /* Typography — font families */
+  --_typography---font--family--body: "Outfit", Arial, sans-serif;
+  --_typography---font--family--title: "Red Hat Display", Arial, sans-serif;
+  --_typography---font--family--brand: "Playfair Display", Arial, serif;
+
+  /* Typography — sizes */
+  --_typography---font--size--xxs: 0.6875rem;
+  --_typography---font--size--xs: 0.75rem;
+  --_typography---font--size--sm: 0.875rem;
+  --_typography---font--size--md: 1rem;
+  --_typography---font--size--lg: 1.0625rem;
+  --_typography---font--size--xls: 1.125rem;
+  --_typography---font--size--xl: 1.25rem;
+  --_typography---font--size--2xl: 1.5rem;
+  --_typography---font--size--3xl: 2rem;
+  --_typography---font--size--4xl: 2.5rem;
+  --_typography---font--size--5xl: 3rem;
+  --_typography---font--size--6xl: 3.5rem;
+  --_typography---font--size--7xl: 3.75rem;
+  --_typography---font--size--8xl: 4.5rem;
+
+  /* Typography — weights */
+  --_typography---font--weight--thin: 100;
+  --_typography---font--weight--extralight: 200;
+  --_typography---font--weight--light: 300;
+  --_typography---font--weight--regular: 400;
+  --_typography---font--weight--medium: 500;
+  --_typography---font--weight--semibold: 600;
+  --_typography---font--weight--bold: 700;
+  --_typography---font--weight--extrabold: 800;
+  --_typography---font--weight--black: 900;
+
+  /* Line heights (optional) */
+  --_typography---line--height--tight: 1.1;
+  --_typography---line--height--normal: 1.25;
+  --_typography---line--height--relaxed: 1.5;
 }
 
 body {
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  background-color: #050505;
-  color: #f8fafc;
+  background-color: var(--_theme---base--surface--surface);
+  font-family: var(--_typography---font--family--body);
+  color: var(--_theme---base--text--primary);
+  font-size: var(--_typography---font--size--sm);
+  line-height: var(--_typography---line--height--normal);
   margin: 0;
-  cursor: none; /* Hide default cursor */
+  cursor: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Selection: readable on dark UI */
+::selection {
+  background: rgba(255, 255, 255, 0.3);
+  color: #ffffff;
+}
+::-moz-selection {
+  background: rgba(255, 255, 255, 0.3);
+  color: #ffffff;
 }
 
 #root {
   min-height: 100vh;
 }
 
+/* Utility classes using design system */
+.font-body { font-family: var(--_typography---font--family--body); }
+.font-title { font-family: var(--_typography---font--family--title); }
+.font-brand { font-family: var(--_typography---font--family--brand); }
+
 .glass-effect {
   background: rgba(255, 255, 255, 0.03);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--_theme---base--border--subtle);
 }
 
-/* Custom scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
-}
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: var(--_theme---base--surface--surface); }
+::-webkit-scrollbar-thumb { background: var(--_theme---base--surface--overlay); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--_theme---accent); }
 
-::-webkit-scrollbar-track {
-  background: #050505;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #121212;
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #00d084;
-}
-
-/* Ensure clickable elements also hide cursor */
 a, button, input, textarea, [role="button"] {
   cursor: none !important;
 }
 
-/* Performance optimizations */
 * {
   -webkit-tap-highlight-color: transparent;
 }
 
-.will-change-transform {
-  will-change: transform;
-}
-
-.will-change-opacity {
-  will-change: opacity;
-}
+.will-change-transform { will-change: transform; }
+.will-change-opacity { will-change: opacity; }
 
 @media (max-width: 768px) {
-  .glass-effect {
-    backdrop-filter: blur(5px); /* Reduce blur on mobile */
-  }
-  
-  /* Disable heavy animations on low-power devices if possible */
-  .animate-pulse {
-    animation-duration: 4s; /* Slow down pulse on mobile */
-  }
+  .glass-effect { backdrop-filter: blur(8px); }
 }

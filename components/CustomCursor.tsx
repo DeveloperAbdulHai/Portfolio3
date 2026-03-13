@@ -1,18 +1,20 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { motion, useSpring, useMotionValue } from 'framer-motion';
 
 const CustomCursor: React.FC = () => {
   const [isHovered, setIsHovered] = useState(false);
   const [isActive, setIsActive] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
+  const hoveredRef = useRef(false);
 
   // Mouse coordinates
   const mouseX = useMotionValue(-100);
   const mouseY = useMotionValue(-100);
 
   // Spring physics for the trailing ring
-  const springConfig = { damping: 30, stiffness: 250, mass: 0.5 };
+  // Tighter spring = less perceived delay (still smooth)
+  const springConfig = { damping: 28, stiffness: 900, mass: 0.22 };
   const smoothX = useSpring(mouseX, springConfig);
   const smoothY = useSpring(mouseY, springConfig);
 
@@ -41,11 +43,16 @@ const CustomCursor: React.FC = () => {
         target.closest('.group') ||
         target.tagName === 'INPUT' ||
         target.tagName === 'TEXTAREA';
-      
-      setIsHovered(!!isClickable);
+
+      const nextHovered = !!isClickable;
+      if (hoveredRef.current !== nextHovered) {
+        hoveredRef.current = nextHovered;
+        setIsHovered(nextHovered);
+      }
     };
 
-    window.addEventListener('mousemove', onMouseMove);
+    // Prefer pointer events (better on high-DPI + stylus); fall back to mouse events.
+    window.addEventListener('pointermove', onMouseMove as unknown as EventListener, { passive: true });
     window.addEventListener('mousedown', onMouseDown);
     window.addEventListener('mouseup', onMouseUp);
     window.addEventListener('mouseover', handleMouseOver);
@@ -56,7 +63,7 @@ const CustomCursor: React.FC = () => {
     allButtons.forEach(b => (b as HTMLElement).style.cursor = 'none');
 
     return () => {
-      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('pointermove', onMouseMove as unknown as EventListener);
       window.removeEventListener('mousedown', onMouseDown);
       window.removeEventListener('mouseup', onMouseUp);
       window.removeEventListener('mouseover', handleMouseOver);
@@ -79,24 +86,72 @@ const CustomCursor: React.FC = () => {
           top: smoothY,
           x: "-50%",
           y: "-50%",
-          width: isHovered ? 80 : 40,
-          height: isHovered ? 80 : 40,
-          backgroundColor: isHovered ? 'rgba(0, 208, 132, 0.1)' : 'transparent',
-          scale: isActive ? 0.8 : 1,
+          willChange: 'transform, width, height',
         }}
-        transition={{ type: 'spring', damping: 20, stiffness: 300 }}
+        animate={{
+          width: isHovered ? 76 : 36,
+          height: isHovered ? 76 : 36,
+          backgroundColor: isHovered ? 'rgba(0, 208, 132, 0.10)' : 'rgba(0, 0, 0, 0)',
+          scale: isActive ? 0.86 : 1,
+        }}
+        transition={{
+          width: { type: 'spring', stiffness: 520, damping: 34, mass: 0.35 },
+          height: { type: 'spring', stiffness: 520, damping: 34, mass: 0.35 },
+          backgroundColor: { duration: 0.18, ease: 'easeOut' },
+          scale: { type: 'spring', stiffness: 700, damping: 28, mass: 0.3 },
+        }}
       />
+
+      {/* Targeting Reticle (only on hover) */}
+      <motion.div
+        className="absolute pointer-events-none"
+        style={{
+          left: smoothX,
+          top: smoothY,
+          x: "-50%",
+          y: "-50%",
+          width: 92,
+          height: 92,
+          willChange: 'transform, opacity',
+        }}
+        animate={{
+          opacity: isHovered ? 1 : 0,
+          scale: isHovered ? 1 : 0.92,
+        }}
+        transition={{
+          opacity: { duration: 0.12, ease: 'easeOut' },
+          scale: { type: 'spring', stiffness: 650, damping: 30, mass: 0.3 },
+        }}
+      >
+        {/* 4 corner ticks */}
+        <div className="absolute left-1 top-1 w-4 h-[2px] bg-primary-500/80 rounded-full" />
+        <div className="absolute left-1 top-1 w-[2px] h-4 bg-primary-500/80 rounded-full" />
+
+        <div className="absolute right-1 top-1 w-4 h-[2px] bg-primary-500/80 rounded-full" />
+        <div className="absolute right-1 top-1 w-[2px] h-4 bg-primary-500/80 rounded-full" />
+
+        <div className="absolute left-1 bottom-1 w-4 h-[2px] bg-primary-500/80 rounded-full" />
+        <div className="absolute left-1 bottom-1 w-[2px] h-4 bg-primary-500/80 rounded-full" />
+
+        <div className="absolute right-1 bottom-1 w-4 h-[2px] bg-primary-500/80 rounded-full" />
+        <div className="absolute right-1 bottom-1 w-[2px] h-4 bg-primary-500/80 rounded-full" />
+
+        {/* subtle center dot to suggest “lock” */}
+        <div className="absolute left-1/2 top-1/2 w-1 h-1 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary-500/70 blur-[0.2px]" />
+      </motion.div>
       
       {/* Inner Dot */}
       <motion.div
-        className="absolute w-2 h-2 bg-primary-500 rounded-full"
+        className="absolute w-1.5 h-1.5 bg-primary-500 rounded-full"
         style={{
           left: mouseX,
           top: mouseY,
           x: "-50%",
           y: "-50%",
-          opacity: isHovered ? 0 : 1,
+          willChange: 'transform, opacity',
         }}
+        animate={{ opacity: isHovered ? 0 : 1 }}
+        transition={{ duration: 0.12, ease: 'easeOut' }}
       />
       
       {/* Glow Effect around cursor */}
@@ -107,8 +162,10 @@ const CustomCursor: React.FC = () => {
           top: smoothY,
           x: "-50%",
           y: "-50%",
-          opacity: isVisible ? 1 : 0,
+          willChange: 'transform, opacity',
         }}
+        animate={{ opacity: isVisible ? 1 : 0 }}
+        transition={{ duration: 0.2, ease: 'easeOut' }}
       />
     </div>
   );

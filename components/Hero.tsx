@@ -1,10 +1,10 @@
-
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowRight, Play, X, Download, ChevronDown } from 'lucide-react';
+import { ArrowRight, Play, Download, ChevronDown } from 'lucide-react';
 import * as LucideIcons from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Profile, SocialLink } from '../types';
+import { Dialog, DialogContent, DialogTrigger } from './ui/dialog';
 
 interface HeroProps {
   profile: Profile | null;
@@ -13,257 +13,309 @@ interface HeroProps {
 
 const Hero: React.FC<HeroProps> = ({ profile, socials }) => {
   const [isVideoOpen, setIsVideoOpen] = useState(false);
+  const [roleIndex, setRoleIndex] = useState(0);
   const navigate = useNavigate();
 
-  const displayName = profile?.name?.trim() || "Md Abdul Hai";
-  const displayTitle = profile?.title?.trim() || "Creative Visualizer & Developer";
-  const displayBio = profile?.bio?.trim() || "Transforming complex ideas into cinematic digital experiences with precision and passion.";
+  const displayName = profile?.name?.trim() || 'Md Abdul Hai';
+  const displayTitle = profile?.title?.trim() || 'Senior Visualizer';
+  const displayBio =
+    profile?.bio?.trim() ||
+    'Brands lose attention when their visuals look inconsistent, outdated, or “just okay.” I design premium static and motion visuals + edit video that makes your content feel high-end, improves clarity, and boosts brand visibility across socials and campaigns.';
+  const rotatingRoles = useMemo(() => {
+    const base = displayTitle || 'Senior Visualizer';
+    const roles = [
+      base,
+      'Motion Graphic Designer',
+      'CGI Artist',
+      'Brand Visualizer',
+    ];
+    return Array.from(new Set(roles.filter(Boolean)));
+  }, [displayTitle]);
+
+  useEffect(() => {
+    if (rotatingRoles.length <= 1) return;
+    const t = window.setInterval(() => {
+      setRoleIndex((i) => (i + 1) % rotatingRoles.length);
+    }, 2200);
+    return () => window.clearInterval(t);
+  }, [rotatingRoles.length]);
+  const avatarUrl = profile?.avatar_url || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=1000';
 
   const SocialIcon = ({ name }: { name: string }) => {
-    // @ts-ignore
-    const Icon = LucideIcons[name] || LucideIcons.Link2;
-    return <Icon size={20} />;
+    const Icon = (LucideIcons as any)[name] || LucideIcons.Link2;
+    return <Icon size={18} />;
   };
 
   const handleResumeDownload = () => {
-    if (profile?.resume_url) {
-      window.open(profile.resume_url, '_blank');
-    }
+    if (profile?.resume_url) window.open(profile.resume_url, '_blank');
   };
 
-  // Helper to convert standard video URLs to embed URLs
   const getEmbedUrl = (url: string) => {
     if (!url) return '';
-    
-    // YouTube
     const ytMatch = url.match(/(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&?/\s]+)/);
     if (ytMatch) return `https://www.youtube.com/embed/${ytMatch[1]}?autoplay=1`;
-    
-    // Vimeo
     const vimeoMatch = url.match(/(?:https?:\/\/)?(?:www\.)?(?:vimeo\.com\/|player\.vimeo\.com\/video\/)(\d+)/);
     if (vimeoMatch) return `https://player.vimeo.com/video/${vimeoMatch[1]}?autoplay=1`;
-    
     return url;
   };
 
-  const nameParts = displayName.split(' ');
-  const lastName = nameParts.pop();
-  const firstName = nameParts.join(' ');
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.15,
-        delayChildren: 0.2
-      }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { 
-      opacity: 1, 
-      y: 0,
-      transition: { duration: 0.8, ease: "easeOut" }
-    }
-  };
-
   const scrollToNextSection = () => {
-    const nextSection = document.getElementById('expertise');
-    if (nextSection) {
-      nextSection.scrollIntoView({ behavior: 'smooth' });
-    }
+    document.getElementById('expertise')?.scrollIntoView({ behavior: 'smooth' });
   };
 
   return (
-    <section className="relative min-h-screen flex items-center pt-20 overflow-hidden bg-background">
-      <div className="absolute top-[-20%] right-[-10%] w-[800px] h-[800px] bg-primary-500/10 blur-[100px] md:blur-[160px] rounded-full animate-pulse" style={{ willChange: 'opacity' }}></div>
-      <div className="absolute top-[20%] right-[-5%] w-[400px] h-[400px] bg-blue-500/5 blur-[80px] md:blur-[120px] rounded-full"></div>
-      <div className="absolute bottom-[10%] left-[-5%] w-[400px] h-[400px] bg-primary-500/5 blur-[80px] md:blur-[100px] rounded-full"></div>
+    <section className="relative min-h-screen flex flex-col justify-center overflow-hidden pt-20 bg-[var(--_theme---base--surface--surface)]">
+      {/* Subtle grid lines in background */}
+      <div
+        className="pointer-events-none absolute inset-0 opacity-[0.06]"
+        style={{
+          backgroundImage:
+            'linear-gradient(to right, rgba(255,255,255,0.08) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.08) 1px, transparent 1px)',
+          backgroundSize: '72px 72px',
+          maskImage: 'radial-gradient(circle at 25% 30%, black 0%, transparent 70%)',
+          WebkitMaskImage: 'radial-gradient(circle at 25% 30%, black 0%, transparent 70%)',
+        }}
+      />
 
-      <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 w-full grid grid-cols-1 lg:grid-cols-12 gap-16 items-center relative z-10">
-        <motion.div 
-          className="lg:col-span-7 space-y-10 order-1 lg:order-1"
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
+      {/* Background decorative word */}
+      <div className="pointer-events-none absolute inset-0 flex items-center justify-end pr-0 lg:pr-[5%]">
+        <motion.span
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 0.035 }}
+          transition={{ delay: 0.5, duration: 1 }}
+          className="font-brand text-[clamp(6rem,18vw,14rem)] font-bold leading-none tracking-tighter select-none"
+          style={{ color: 'var(--_theme---base--text--primary)' }}
+          aria-hidden
         >
-          <motion.div variants={itemVariants}>
-            <div className="inline-flex items-center gap-3 px-4 py-2 rounded-lg border border-white/10 bg-white/5 backdrop-blur-md mb-8">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-primary-500"></span>
-              </span>
-              <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-slate-300">Available for Projects</span>
-            </div>
+          VISUAL
+        </motion.span>
+      </div>
 
-            <h1 className="text-5xl md:text-7xl lg:text-8xl font-black text-white leading-tight tracking-tighter mb-8">
-              {firstName} <span className="text-primary-500">{lastName}</span>
-            </h1>
-
-            <p className="text-xl md:text-2xl font-medium text-slate-400 max-w-xl leading-relaxed">
-              {displayTitle}
-            </p>
-          </motion.div>
-
-          <motion.p 
-            variants={itemVariants}
-            className="text-slate-500 text-lg max-w-lg leading-relaxed border-l-2 border-primary-500/30 pl-6"
-          >
-            {displayBio}
-          </motion.p>
-
-          <motion.div variants={itemVariants} className="flex flex-wrap gap-10 items-center">
-            <button 
-              onClick={() => navigate('/contact')}
-              className="px-10 py-5 bg-primary-500 text-black font-black rounded-xl flex items-center gap-3 hover:bg-primary-400 transition-all shadow-[0_20px_40px_rgba(0,208,132,0.2)] active:scale-95 uppercase tracking-widest text-[11px]"
-            >
-              Start Project <ArrowRight size={18} />
-            </button>
-            
-            {profile?.video_url && (
-              <button 
-                onClick={() => setIsVideoOpen(true)}
-                className="group flex items-center gap-5 text-white hover:text-primary-500 transition-all"
-              >
-                <div className="relative w-14 h-14 flex items-center justify-center">
-                  <div className="absolute inset-0 rounded-full border border-primary-500 animate-[ping_2.5s_infinite] opacity-30"></div>
-                  <div className="absolute inset-[-4px] rounded-full border border-white/10 animate-[pulse_4s_infinite]"></div>
-                  <div className="w-12 h-12 rounded-xl border border-white/20 bg-white/5 backdrop-blur-md flex items-center justify-center relative group-hover:bg-primary-500 group-hover:text-black transition-all duration-500">
-                    <Play size={20} className="fill-current ml-1 group-hover:text-black transition-colors" />
-                  </div>
-                </div>
-                <div className="flex flex-col items-start text-left">
-                   <span className="text-[10px] font-black uppercase tracking-[0.4em] mb-0.5">Watch Intro</span>
-                   <span className="text-[9px] text-slate-500 font-bold uppercase tracking-[0.2em] group-hover:text-primary-400/70 transition-colors">Play Motion</span>
-                </div>
-              </button>
-            )}
-          </motion.div>
-
-          <motion.div variants={itemVariants} className="flex items-center gap-6 pt-10">
-            <div className="flex items-center gap-4">
-              <span className="text-[10px] font-bold uppercase tracking-widest text-slate-600 mr-2">Follow</span>
-              {socials.map((s) => (
-                <a 
-                  key={s.id} 
-                  href={s.url} 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
-                  className="w-10 h-10 bg-white/5 border border-white/5 rounded-xl flex items-center justify-center text-slate-400 hover:text-primary-500 hover:border-primary-500/50 transition-all"
-                  title={s.platform}
+      <div className="relative z-10 mx-auto w-full max-w-[1400px] px-6 sm:px-10 lg:px-14">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+          {/* Left: text block */}
+          <div className="lg:col-span-6 max-w-2xl">
+            <div className="flex flex-col gap-6 sm:gap-8">
+                <motion.h1
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3, duration: 0.5 }}
+                  className="font-brand text-xl sm:text-2xl md:text-3xl font-semibold leading-[1.15] tracking-tight flex flex-wrap items-center gap-3"
+                  style={{ color: 'var(--_theme---base--text--primary)' }}
                 >
-                  <SocialIcon name={s.icon || s.platform} />
-                </a>
-              ))}
-            </div>
-
-            {profile?.resume_url && (
-              <button 
-                onClick={handleResumeDownload}
-                className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 hover:text-white transition-all pl-6 border-l border-white/10"
-              >
-                <Download size={14} className="text-primary-500" /> Resume
-              </button>
-            )}
-          </motion.div>
-        </motion.div>
-
-        <div className="lg:col-span-5 relative order-2 lg:order-2 mt-12 lg:mt-0">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9, rotate: 2 }}
-            animate={{ opacity: 1, scale: 1, rotate: 0 }}
-            transition={{ duration: 1.2, ease: "easeOut", delay: 0.5 }}
-            className="relative z-10"
-          >
-            <div className="aspect-[4/5] rounded-3xl overflow-hidden border-[12px] border-slate-900 bg-slate-900 shadow-3xl relative">
-              <img 
-                src={profile?.avatar_url || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=1000"} 
-                alt={displayName}
-                className="w-full h-full object-cover transition-all duration-700"
-                loading="eager"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent opacity-60"></div>
-              
-              {/* Animated Experience Badge */}
-              <motion.div 
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 1.5, duration: 0.8 }}
-                className="absolute bottom-10 left-8 right-8 z-30"
-              >
-                <motion.div 
-                  animate={{ y: [0, -10, 0] }}
-                  transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                  className="glass-effect p-6 rounded-2xl flex items-center gap-6 border border-white/10 shadow-2xl"
-                  style={{ willChange: 'transform' }}
+                  <span>{displayName}</span>
+                  <span
+                    className="font-body text-[9px] sm:text-[10px] font-medium rounded-full px-2.5 py-1 border"
+                    style={{
+                      color: 'var(--_theme---base--text--secondary)',
+                      backgroundColor: 'var(--_theme---base--surface--raised)',
+                      borderColor: 'var(--_theme---base--border--subtle)',
+                    }}
+                  >
+                    Available for projects
+                  </span>
+                </motion.h1>
+                <motion.div
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.45, duration: 0.4 }}
+                  className="flex items-center gap-3"
                 >
-                  <div className="text-4xl font-black text-primary-500 drop-shadow-[0_0_10px_rgba(0,208,132,0.4)]">5+</div>
-                  <div className="h-10 w-px bg-white/10"></div>
-                  <div className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-300 leading-relaxed">
-                    Years of Digital<br/>Experience
+                  <div className="relative h-[3.25rem] sm:h-[4rem] md:h-[4.5rem] overflow-hidden">
+                    <AnimatePresence mode="wait">
+                      <motion.span
+                        key={rotatingRoles[roleIndex] || 'role'}
+                        initial={{ opacity: 0, y: 18 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -18 }}
+                        transition={{ duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] }}
+                        className="font-brand text-4xl sm:text-5xl md:text-6xl font-semibold block tracking-tight"
+                        style={{ color: 'var(--_theme---base--text--primary)' }}
+                      >
+                        {rotatingRoles[roleIndex]}
+                      </motion.span>
+                    </AnimatePresence>
                   </div>
                 </motion.div>
-              </motion.div>
+                <motion.p
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.6, duration: 0.4 }}
+                  className="font-body text-base sm:text-lg font-normal leading-relaxed max-w-xl"
+                  style={{ color: 'var(--_theme---base--text--muted)' }}
+                >
+                  {displayBio}
+                </motion.p>
+                <motion.div
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.75, duration: 0.4 }}
+                  className="flex flex-wrap items-center gap-4 sm:gap-6"
+                >
+                  <button
+                    type="button"
+                    onClick={() => navigate('/contact')}
+                    className="inline-flex items-center gap-2 font-body text-sm font-semibold rounded-full px-6 py-3.5 transition-colors"
+                    style={{
+                      color: 'var(--_theme---base--surface--surface)',
+                      backgroundColor: 'var(--_theme---accent)',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = 'var(--_theme---accent--hover)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = 'var(--_theme---accent)';
+                    }}
+                  >
+                    Start a project
+                    <ArrowRight size={18} />
+                  </button>
+                  {profile?.video_url && (
+                    <Dialog open={isVideoOpen} onOpenChange={setIsVideoOpen}>
+                      <DialogTrigger asChild>
+                        <button
+                          type="button"
+                          className="inline-flex items-center gap-2 font-body text-sm font-medium transition-colors rounded-full border px-4 py-3"
+                          style={{
+                            color: 'var(--_theme---base--text--secondary)',
+                            borderColor: 'var(--_theme---base--border--subtle)',
+                            backgroundColor: 'var(--_theme---base--surface--raised)',
+                          }}
+                        >
+                          <Play size={16} className="ml-0.5 fill-current" />
+                          Watch intro
+                        </button>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-5xl p-0 bg-black border border-white/10 overflow-hidden">
+                        <div className="aspect-video w-full">
+                          <iframe
+                            src={getEmbedUrl(profile.video_url)}
+                            className="w-full h-full"
+                            title="Intro reel"
+                            frameBorder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen
+                          />
+                        </div>
+                      </DialogContent>
+                    </Dialog>
+                  )}
+                </motion.div>
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.9, duration: 0.4 }}
+                  className="flex flex-wrap items-center gap-6 pt-2 border-t"
+                  style={{ borderColor: 'var(--_theme---base--border--subtle)' }}
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="font-body text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--_theme---base--text--muted)' }}>Follow</span>
+                    {socials.map((s) => (
+                      <a
+                        key={s.id}
+                        href={s.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex h-9 w-9 items-center justify-center rounded-lg transition-colors"
+                        style={{ backgroundColor: 'var(--_theme---base--surface--raised)', color: 'var(--_theme---base--text--muted)' }}
+                        title={s.platform}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.color = 'var(--_theme---accent)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.color = 'var(--_theme---base--text--muted)';
+                        }}
+                      >
+                        <SocialIcon name={s.icon || s.platform} />
+                      </a>
+                    ))}
+                  </div>
+                  {profile?.resume_url && (
+                    <button
+                      type="button"
+                      onClick={handleResumeDownload}
+                      className="font-body text-xs font-medium flex items-center gap-2 transition-colors"
+                      style={{ color: 'var(--_theme---base--text--muted)' }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.color = 'var(--_theme---base--text--primary)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.color = 'var(--_theme---base--text--muted)';
+                      }}
+                    >
+                      <Download size={14} />
+                      Resume
+                    </button>
+                  )}
+                </motion.div>
             </div>
-          </motion.div>
+          </div>
+
+          {/* Right: image in organic shape + small floating badges (never on face) */}
+          <div className="lg:col-span-6 relative flex justify-center lg:justify-end items-center min-h-[420px] lg:min-h-[520px]">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.96 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.8, delay: 0.35, ease: [0.25, 0.46, 0.45, 0.94] }}
+              className="relative w-full max-w-md aspect-[4/5]"
+            >
+              {/* Soft glow — same shape as image */}
+              <div
+                className="absolute -inset-2 blur-2xl"
+                style={{
+                  background: 'var(--_theme---accent)',
+                  opacity: 0.12,
+                  clipPath:
+                    'polygon(6% 0%, 94% 0%, 100% 6%, 100% 94%, 94% 100%, 6% 100%, 0% 94%, 0% 6%)',
+                  boxShadow: '0 0 40px -18px rgba(0,208,132,0.22)',
+                }}
+              />
+              {/* Image — premium cut-corner frame */}
+              <div
+                className="relative h-full w-full overflow-hidden border-2"
+                style={{
+                  borderColor: 'var(--_theme---accent)',
+                  clipPath:
+                    'polygon(6% 0%, 94% 0%, 100% 6%, 100% 94%, 94% 100%, 6% 100%, 0% 94%, 0% 6%)',
+                  boxShadow: '0 0 0 1px rgba(0,208,132,0.12)',
+                }}
+              >
+                <img
+                  src={avatarUrl}
+                  alt={displayName}
+                  className="h-full w-full object-cover object-top"
+                  loading="eager"
+                />
+              </div>
+
+            </motion.div>
+          </div>
         </div>
       </div>
 
-      {/* Scroll Down Indicator */}
-      <motion.div 
+      {/* Scroll hint */}
+      <motion.button
+        type="button"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 2, duration: 1 }}
-        className="absolute bottom-10 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-4 cursor-pointer"
+        transition={{ delay: 1.2, duration: 0.5 }}
         onClick={scrollToNextSection}
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 transition-colors"
+        style={{ color: 'var(--_theme---base--text--muted)' }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.color = 'var(--_theme---base--text--secondary)';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.color = 'var(--_theme---base--text--muted)';
+        }}
       >
-        <span className="text-[10px] font-black uppercase tracking-[0.6em] text-slate-500 rotate-180 [writing-mode:vertical-lr] mb-2">Scroll</span>
-        <motion.div 
-          animate={{ y: [0, 8, 0] }}
-          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-          className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-primary-500 shadow-lg backdrop-blur-sm"
-          style={{ willChange: 'transform' }}
-        >
+        <span className="font-body text-xxs uppercase tracking-widest">Scroll</span>
+        <motion.span animate={{ y: [0, 6, 0] }} transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}>
           <ChevronDown size={20} />
-        </motion.div>
-      </motion.div>
+        </motion.span>
+      </motion.button>
 
-      <AnimatePresence>
-        {isVideoOpen && profile?.video_url && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-2xl flex items-center justify-center p-4 md:p-12"
-          >
-            <motion.button 
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              onClick={() => setIsVideoOpen(false)}
-              className="absolute top-10 right-10 p-4 bg-white/10 text-white rounded-full hover:bg-primary-500 hover:text-black transition-all z-10"
-            >
-              <X size={24} />
-            </motion.button>
-            <motion.div 
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              className="w-full max-w-5xl aspect-video rounded-3xl overflow-hidden border border-white/10 shadow-3xl bg-black"
-            >
-              <iframe 
-                src={getEmbedUrl(profile.video_url)} 
-                className="w-full h-full"
-                title="Portfolio Showreel"
-                frameBorder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              ></iframe>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Video dialog now handled by shadcn-style Dialog */} 
     </section>
   );
 };

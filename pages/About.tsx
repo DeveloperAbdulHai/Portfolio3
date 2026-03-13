@@ -52,136 +52,122 @@ const About: React.FC = () => {
   return (
     <div className="bg-background min-h-screen">
       <Navbar />
-      <main className="pt-32">
-        {/* Intro Section */}
-        <section className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 py-20">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
-            <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
-              <div className="inline-block px-4 py-1.5 rounded-full border border-primary-500/20 bg-primary-500/5 text-primary-500 text-[10px] font-bold tracking-widest uppercase mb-6">About Me</div>
-              <h1 className="text-5xl font-extrabold text-white mb-8 leading-tight">
-                {profile?.about_headline || "My journey as a Creative Technologist."}
+      <main className="pt-28">
+        <section className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 py-section">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-center">
+            <motion.div initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5 }}>
+              <span className="inline-block px-4 py-1.5 rounded-full border border-primary-500/25 bg-primary-500/10 text-primary-500 text-[11px] font-semibold tracking-widest uppercase mb-6">About me</span>
+              <h1 className="font-display text-display-xl font-bold text-white mb-6 leading-tight">
+                {profile?.about_headline || "Visualizer bridging ideas and execution."}
               </h1>
-              <div className="space-y-6 text-slate-400 text-lg leading-relaxed whitespace-pre-wrap">
-                <p>{profile?.bio || "Tell your story in the admin dashboard. This area describes your professional journey and passion for creation."}</p>
-                <p>Based in {profile?.location || "Global Workspace"}, I bridge the gap between imagination and execution. With a deep focus on user experience and visual storytelling, I create digital solutions that don't just work—they resonate.</p>
+              <div className="space-y-5 text-slate-500 text-base leading-relaxed whitespace-pre-wrap">
+                <p>{profile?.bio || "I turn brand stories into striking visuals—static and motion design, video editing, and campaigns that boost visibility."}</p>
+                <p>Based in {profile?.location || "Global"}, I focus on visual storytelling and user experience to create work that resonates and gets noticed.</p>
               </div>
-
-              {/* Stats Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mt-12">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-10">
                 {stats.map((stat, i) => (
-                  <div key={i} className="p-6 bg-white/5 border border-white/5 rounded-3xl group hover:border-primary-500/30 transition-all will-change-transform">
-                    <div className="mb-4">{stat.icon}</div>
-                    <div className="text-2xl font-black text-white mb-1">{stat.value}</div>
-                    <div className="text-[9px] font-bold uppercase tracking-widest text-slate-500">{stat.label}</div>
+                  <div key={i} className="p-5 bg-surface border border-white/[0.06] rounded-2xl hover:border-primary-500/20 transition-all">
+                    <div className="mb-3">{stat.icon}</div>
+                    <div className="font-display text-xl font-bold text-white mb-0.5">{stat.value}</div>
+                    <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">{stat.label}</div>
                   </div>
                 ))}
               </div>
+              <div className="mt-10">
+                <a href="#contact" className="inline-flex items-center gap-2 text-primary-500 text-sm font-semibold hover:text-primary-400 transition-colors">
+                  Start a project →
+                </a>
+              </div>
             </motion.div>
-            <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="relative">
-               <div className="aspect-square rounded-[40px] md:rounded-[60px] overflow-hidden border border-white/10 p-4 bg-white/5 shadow-xl md:shadow-2xl relative group">
-                  <div className="absolute inset-0 bg-primary-500/10 opacity-0 group-hover:opacity-100 transition-opacity z-10"></div>
-                  <img src={displayImage} className="w-full h-full object-cover rounded-[30px] md:rounded-[50px] transition-all duration-1000" alt={profile?.name || "Profile About Portrait"} />
-               </div>
+            <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5 }} className="relative">
+              <div className="aspect-square rounded-3xl overflow-hidden border border-white/[0.06] bg-surface relative group">
+                <img src={displayImage} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" alt={profile?.name || "Profile"} />
+                <div className="absolute inset-0 bg-primary-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+              </div>
             </motion.div>
           </div>
         </section>
 
         <Skills skills={skills} />
 
-        {/* Timeline Section */}
-        <section className="py-32 bg-slate-950/50">
+        <section className="py-section bg-surface-muted border-y border-white/[0.06]">
           <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
-             <div className="grid grid-cols-1 lg:grid-cols-2 gap-24">
-                {/* Experience Column */}
-                <div className="space-y-12">
-                   <div>
-                      <span className="text-primary-500 text-[10px] font-black uppercase tracking-[0.4em] block mb-4">Milestones</span>
-                      <h2 className="text-4xl font-black text-white tracking-tighter flex items-center gap-4">
-                        Professional <span className="text-primary-500">Path.</span>
-                      </h2>
-                   </div>
-                   
-                   <div className="space-y-8 relative">
-                      {experience.map((item, idx) => (
-                        <motion.div 
-                          key={item.id}
-                          initial={{ opacity: 0, x: -20 }}
-                          whileInView={{ opacity: 1, x: 0 }}
-                          viewport={{ once: true }}
-                          transition={{ delay: idx * 0.1 }}
-                          className="relative pl-12 group"
-                        >
-                          <div className="absolute left-0 top-0 bottom-0 w-[1px] bg-white/5"></div>
-                          <div className="absolute left-[-4px] top-2 w-2 h-2 rounded-full bg-primary-500 group-hover:scale-150 transition-transform"></div>
-                          
-                          <div className="bg-white/5 border border-white/5 p-8 rounded-3xl group-hover:border-primary-500/30 transition-all">
-                             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
-                                <div className="flex items-center gap-3">
-                                   <div className="w-10 h-10 bg-primary-500/10 text-primary-500 rounded-xl flex items-center justify-center shrink-0">
-                                      <Building2 size={18}/>
-                                   </div>
-                                   <div>
-                                      <h4 className="font-bold text-white text-lg">{item.title}</h4>
-                                      <p className="text-slate-500 text-sm font-medium">{item.institution}</p>
-                                   </div>
-                                </div>
-                                <span className="px-4 py-1.5 bg-black/40 rounded-full text-[10px] font-black uppercase tracking-widest text-slate-400 border border-white/5 shrink-0 whitespace-nowrap self-start sm:self-center">
-                                   {item.period}
-                                </span>
-                             </div>
-                             {item.description && <p className="text-slate-500 text-sm leading-relaxed">{item.description}</p>}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-20">
+              <div className="space-y-10">
+                <span className="text-primary-500 text-[11px] font-semibold uppercase tracking-widest block mb-4">Milestones</span>
+                <h2 className="font-display text-display-lg font-bold text-white">
+                  Professional <span className="text-primary-500">path</span>
+                </h2>
+                <div className="space-y-6">
+                  {experience.map((item, idx) => (
+                    <motion.div
+                      key={item.id}
+                      initial={{ opacity: 0, x: -12 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: idx * 0.08 }}
+                      className="relative pl-10 group"
+                    >
+                      <div className="absolute left-0 top-0 bottom-0 w-px bg-white/10" />
+                      <div className="absolute left-[-3px] top-2 w-2 h-2 rounded-full bg-primary-500" />
+                      <div className="bg-surface border border-white/[0.06] p-6 rounded-2xl group-hover:border-primary-500/20 transition-all">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 bg-primary-500/10 text-primary-500 rounded-xl flex items-center justify-center shrink-0">
+                              <Building2 size={18} />
+                            </div>
+                            <div>
+                              <h4 className="font-semibold text-white">{item.title}</h4>
+                              <p className="text-slate-500 text-sm">{item.institution}</p>
+                            </div>
                           </div>
-                        </motion.div>
-                      ))}
-                      {experience.length === 0 && <p className="text-slate-600 uppercase text-[10px] font-bold tracking-widest">Experience logs coming soon.</p>}
-                   </div>
+                          <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 shrink-0">{item.period}</span>
+                        </div>
+                        {item.description && <p className="text-slate-500 text-sm leading-relaxed">{item.description}</p>}
+                      </div>
+                    </motion.div>
+                  ))}
+                  {experience.length === 0 && <p className="text-slate-600 text-sm">Experience coming soon.</p>}
                 </div>
-
-                {/* Education Column */}
-                <div className="space-y-12">
-                   <div>
-                      <span className="text-blue-500 text-[10px] font-black uppercase tracking-[0.4em] block mb-4">Knowledge</span>
-                      <h2 className="text-4xl font-black text-white tracking-tighter flex items-center gap-4">
-                        Academic <span className="text-blue-500">History.</span>
-                      </h2>
-                   </div>
-
-                   <div className="space-y-8 relative">
-                      {education.map((item, idx) => (
-                        <motion.div 
-                          key={item.id}
-                          initial={{ opacity: 0, x: 20 }}
-                          whileInView={{ opacity: 1, x: 0 }}
-                          viewport={{ once: true }}
-                          transition={{ delay: idx * 0.1 }}
-                          className="relative pl-12 group"
-                        >
-                          <div className="absolute left-0 top-0 bottom-0 w-[1px] bg-white/5"></div>
-                          <div className="absolute left-[-4px] top-2 w-2 h-2 rounded-full bg-blue-500 group-hover:scale-150 transition-transform"></div>
-
-                          <div className="bg-white/5 border border-white/5 p-8 rounded-3xl group-hover:border-blue-500/30 transition-all">
-                             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
-                                <div className="flex items-center gap-3">
-                                   <div className="w-10 h-10 bg-blue-500/10 text-blue-500 rounded-xl flex items-center justify-center shrink-0">
-                                      <GraduationCap size={18}/>
-                                   </div>
-                                   <div>
-                                      <h4 className="font-bold text-white text-lg">{item.title}</h4>
-                                      <p className="text-slate-500 text-sm font-medium">{item.institution}</p>
-                                   </div>
-                                </div>
-                                <span className="px-4 py-1.5 bg-black/40 rounded-full text-[10px] font-black uppercase tracking-widest text-slate-400 border border-white/5 shrink-0 whitespace-nowrap self-start sm:self-center">
-                                   {item.period}
-                                </span>
-                             </div>
-                             {item.description && <p className="text-slate-500 text-sm leading-relaxed">{item.description}</p>}
+              </div>
+              <div className="space-y-10">
+                <span className="text-primary-500 text-[11px] font-semibold uppercase tracking-widest block mb-4">Knowledge</span>
+                <h2 className="font-display text-display-lg font-bold text-white">
+                  Academic <span className="text-primary-500">history</span>
+                </h2>
+                <div className="space-y-6">
+                  {education.map((item, idx) => (
+                    <motion.div
+                      key={item.id}
+                      initial={{ opacity: 0, x: 12 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: idx * 0.08 }}
+                      className="relative pl-10 group"
+                    >
+                      <div className="absolute left-0 top-0 bottom-0 w-px bg-white/10" />
+                      <div className="absolute left-[-3px] top-2 w-2 h-2 rounded-full bg-primary-500" />
+                      <div className="bg-surface border border-white/[0.06] p-6 rounded-2xl group-hover:border-primary-500/20 transition-all">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 bg-primary-500/10 text-primary-500 rounded-xl flex items-center justify-center shrink-0">
+                              <GraduationCap size={18} />
+                            </div>
+                            <div>
+                              <h4 className="font-semibold text-white">{item.title}</h4>
+                              <p className="text-slate-500 text-sm">{item.institution}</p>
+                            </div>
                           </div>
-                        </motion.div>
-                      ))}
-                      {education.length === 0 && <p className="text-slate-600 uppercase text-[10px] font-bold tracking-widest">Education history coming soon.</p>}
-                   </div>
+                          <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 shrink-0">{item.period}</span>
+                        </div>
+                        {item.description && <p className="text-slate-500 text-sm leading-relaxed">{item.description}</p>}
+                      </div>
+                    </motion.div>
+                  ))}
+                  {education.length === 0 && <p className="text-slate-600 text-sm">Education coming soon.</p>}
                 </div>
-             </div>
+              </div>
+            </div>
           </div>
         </section>
 

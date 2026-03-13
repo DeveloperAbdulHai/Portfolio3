@@ -44,7 +44,7 @@ const Portfolio: React.FC = () => {
   return (
     <div className="bg-background min-h-screen">
       <Navbar />
-      <main className="pt-32">
+      <main className="pt-28">
         <Projects projects={projects} />
       </main>
       <Footer profile={profile} />

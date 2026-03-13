@@ -3,79 +3,37 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Md Abdul Hai | Professional Portfolio</title>
+    <title>Md Abdul Hai | Visualizer — Static & Motion Design, Video, Brand Visibility</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&family=Playfair+Display:ital,wght@0,400..900&family=Red+Hat+Display:ital,wght@0,300..900&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
+      :root {
+        --_theme---base--surface--surface: #0c0d12;
+        --_typography---font--family--body: "Outfit", Arial, sans-serif;
+        --_typography---font--family--title: "Red Hat Display", Arial, sans-serif;
+        --_typography---font--family--brand: "Playfair Display", Arial, serif;
+      }
       body {
-        font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-        background-color: #050505;
-        color: #f8fafc;
+        font-family: var(--_typography---font--family--body);
+        background-color: var(--_theme---base--surface--surface);
+        color: #f2f2f5;
         margin: 0;
       }
-      
-      /* Only hide cursor on devices that actually have a mouse/fine pointer */
       @media (pointer: fine) {
-        body, a, button, input, textarea, [role="button"] {
-          cursor: none !important;
-        }
+        body, a, button, input, textarea, [role="button"] { cursor: none !important; }
       }
-
-      #root {
-        min-height: 100vh;
-      }
-      .glass-effect {
-        background: rgba(255, 255, 255, 0.03);
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.05);
-      }
-      
-      /* Performance optimizations */
+      #root { min-height: 100vh; }
       .will-change-transform { will-change: transform; }
       .will-change-opacity { will-change: opacity; }
-      
-      /* Custom scrollbar */
-      ::-webkit-scrollbar {
-        width: 8px;
-      }
-      ::-webkit-scrollbar-track {
-        background: #050505;
-      }
-      ::-webkit-scrollbar-thumb {
-        background: #121212;
-        border-radius: 4px;
-      }
-      ::-webkit-scrollbar-thumb:hover {
-        background: #00d084;
-      }
+      ::-webkit-scrollbar { width: 8px; }
+      ::-webkit-scrollbar-track { background: var(--_theme---base--surface--surface); }
+      ::-webkit-scrollbar-thumb { background: #1c1c22; border-radius: 4px; }
+      ::-webkit-scrollbar-thumb:hover { background: #00d084; }
     </style>
     <script>
-      window.tailwind.config = {
-        darkMode: 'class',
-        theme: {
-          extend: {
-            colors: {
-              background: '#050505',
-              primary: {
-                50: '#e6fff5',
-                100: '#ccffeb',
-                200: '#99ffd7',
-                300: '#66ffc3',
-                400: '#33ffaf',
-                500: '#00d084',
-                600: '#00a66a',
-                700: '#007d50',
-                800: '#005335',
-                900: '#002a1b',
-              },
-              slate: {
-                950: '#050505',
-                900: '#0a0a0a',
-                800: '#121212',
-              }
-            }
-          },
-        },
-      }
+      window.tailwind.config = { darkMode: 'class', theme: { extend: {} } };
     </script>
 <script type="importmap">
 {
@@ -94,7 +52,7 @@
 }
 </script>
 </head>
-  <body class="bg-background antialiased overflow-x-hidden">
+  <body class="antialiased overflow-x-hidden" style="background-color:var(--_theme---base--surface--surface)">
     <div id="root"></div>
     <!-- Vite entry point: Vite bundles everything automatically from your local source -->
     <script type="module" src="/index.tsx"></script>

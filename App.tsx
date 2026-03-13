@@ -31,22 +31,14 @@ const ThemeContext = createContext<ThemeContextType>({
 
 export const useTheme = () => useContext(ThemeContext);
 
-// Standard Loading Component
 const PageLoader = () => (
   <div className="min-h-screen bg-background flex flex-col items-center justify-center">
-    <motion.div 
-      animate={{ 
-        scale: [1, 1.2, 1],
-        rotate: [0, 180, 360]
-      }}
-      transition={{ 
-        duration: 2, 
-        repeat: Infinity,
-        ease: "easeInOut" 
-      }}
-      className="w-12 h-12 border-2 border-primary-500 border-t-transparent rounded-full shadow-[0_0_20px_rgba(0,208,132,0.2)]"
+    <motion.div
+      animate={{ scale: [1, 1.1, 1], opacity: [0.8, 1, 0.8] }}
+      transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
+      className="w-11 h-11 border-2 border-primary-500 border-t-transparent rounded-full"
     />
-    <p className="mt-6 text-[10px] font-black uppercase tracking-[0.5em] text-slate-500 animate-pulse">Syncing Experience</p>
+    <p className="mt-5 text-[11px] font-semibold uppercase tracking-widest text-slate-500">Loading</p>
   </div>
 );
 
